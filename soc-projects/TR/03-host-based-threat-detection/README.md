@@ -17,7 +17,9 @@ Saldırı simülasyonları için ayrı bir **Kali Linux** makinesi (192.168.1.18
 
 ---
 
-## 1. Saldırı Yüzeyi Analizi (Nmap)
+## Metodoloji
+
+### 1. Saldırı Yüzeyi Analizi (Nmap)
 
 Saldırı denemelerinden önce, sunucunun dışa açık yüzeyi tam port taraması ile doğrulandı:
 
@@ -33,7 +35,7 @@ sudo nmap -T5 -p- 192.168.1.149 -oN /root/proj03-aggressive-scan.txt
 
 ---
 
-## 2. Saldırı Denemeleri (Kali Tarafı)
+### 2. Saldırı Denemeleri (Kali Tarafı)
 
 Saldırı simülasyonları, ağ üzerinde 192.168.1.188 adresine sahip ayrı bir Kali Linux makinesinden yürütülmüştür.
 
@@ -51,7 +53,7 @@ Saldırı simülasyonları, ağ üzerinde 192.168.1.188 adresine sahip ayrı bir
 
 ---
 
-## 3. Servis Sağlığı Doğrulaması
+### 3. Servis Sağlığı Doğrulaması
 
 Tüm tespit/engelleme servislerinin çalışır durumda olduğu doğrulandı:
 
@@ -69,7 +71,7 @@ Tüm tespit/engelleme servislerinin çalışır durumda olduğu doğrulandı:
 
 ---
 
-## 4. Gerçek Tespit Kanıtları
+### 4. Gerçek Tespit Kanıtları
 
 **Falco — Hassas Dosya Erişimi Tespiti:**
 Falco, `wazuh-syscheckd` sürecinin `/etc/pam.d/passwd`, `chfn`, `sudo`, `chpasswd` gibi kimlik doğrulama ile ilgili hassas dosyaları okuduğunu tespit etti ve `"Sensitive file opened for reading... Read sensitive file untrusted"` uyarısını üretti. Bu davranış **MITRE ATT&CK T1555 (Credential Access)** tekniğiyle eşleşir.
@@ -105,9 +107,13 @@ Bu, sunucunun **hiçbir saldırı denemesi olmadan bile** küresel bir tehdit is
 
 ---
 
-## 5. Fail2Ban Sorun Giderme Süreci — Projenin En Değerli Bölümü
+### 5. Fail2Ban Sorun Giderme Süreci — Projenin En Değerli Bölümü
 
 Bu proje sırasında Fail2Ban'ın `nginx-botsearch` jail'inin gerçek saldırı denemelerini banlamadığı fark edildi. Kök neden analizi üç ayrı, birbirinden bağımsız sorunu ortaya çıkardı:
+
+---
+
+## Kök Neden Analizi / Bulgular
 
 ### Kök Neden A — Yanlış Backend Yapılandırması
 Fail2Ban jail'leri `backend=systemd` kullanacak şekilde yapılandırılmıştı, ancak nginx logları journald'a değil, doğrudan dosyaya (`/var/www/karateke.online/logs/access.log`) yazıyordu. Bu uyumsuzluk nedeniyle Fail2Ban ilgili logları hiç görmüyordu.
@@ -171,8 +177,6 @@ Bu, saldırgan IP'sinin **gerçekten tespit edilip banlandığının** nihai kan
 *Kanıt: `16-fail2ban-server-foreground-debug-error.png`*
 
 ![Foreground debug modu çıktısı](screenshots/16-fail2ban-server-foreground-debug-error.png)
-
----
 
 ## Öne Çıkan Yetkinlikler
 

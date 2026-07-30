@@ -17,7 +17,9 @@ A separate **Kali Linux** machine (192.168.1.188) was used to run attack simulat
 
 ---
 
-## 1. Attack Surface Analysis (Nmap)
+## Methodology
+
+### 1. Attack Surface Analysis (Nmap)
 
 Before running attack attempts, the server's exposed surface was verified with a full port scan:
 
@@ -33,7 +35,7 @@ sudo nmap -T5 -p- 192.168.1.149 -oN /root/proj03-aggressive-scan.txt
 
 ---
 
-## 2. Attack Attempts (Kali Side)
+### 2. Attack Attempts (Kali Side)
 
 Attack simulations were run from a separate Kali Linux machine at 192.168.1.188 on the same network.
 
@@ -51,7 +53,7 @@ Attack simulations were run from a separate Kali Linux machine at 192.168.1.188 
 
 ---
 
-## 3. Service Health Verification
+### 3. Service Health Verification
 
 All detection/blocking services were confirmed running:
 
@@ -69,7 +71,7 @@ All detection/blocking services were confirmed running:
 
 ---
 
-## 4. Real Detection Evidence
+### 4. Real Detection Evidence
 
 **Falco — Sensitive File Access Detection:**
 Falco detected the `wazuh-syscheckd` process reading authentication-related sensitive files such as `/etc/pam.d/passwd`, `chfn`, `sudo`, and `chpasswd`, generating a `"Sensitive file opened for reading... Read sensitive file untrusted"` alert. This behavior maps to **MITRE ATT&CK T1555 (Credential Access)**.
@@ -105,9 +107,13 @@ This demonstrates that the server benefits from a global threat intelligence net
 
 ---
 
-## 5. Fail2Ban Troubleshooting — The Most Valuable Part of This Project
+### 5. Fail2Ban Troubleshooting — The Most Valuable Part of This Project
 
 During this project, it was discovered that Fail2Ban's `nginx-botsearch` jail was not banning real attack attempts. Root cause analysis uncovered three separate, independent issues:
+
+---
+
+## Root Cause Analysis / Findings
 
 ### Root Cause A — Incorrect Backend Configuration
 Fail2Ban jails were configured with `backend=systemd`, but nginx was writing logs directly to a file (`/var/www/karateke.online/logs/access.log`) rather than to journald. This mismatch meant Fail2Ban never saw the relevant log entries.
@@ -171,8 +177,6 @@ This is final proof that the attacker's IP was **genuinely detected and banned**
 *Evidence: `16-fail2ban-server-foreground-debug-error.png`*
 
 ![Foreground debug mode output](screenshots/16-fail2ban-server-foreground-debug-error.png)
-
----
 
 ## Key Skills Demonstrated
 

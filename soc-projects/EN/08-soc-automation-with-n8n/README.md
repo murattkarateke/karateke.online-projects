@@ -78,7 +78,9 @@ The detail view of the same Executions screen (same source screenshot as step 8)
 
 ## Findings
 
-**Finding — The workflow updates at least 2 different Cloudflare KV keys in parallel, not just one:** The 3 parallel branches on the canvas don't write a single shared dataset to Cloudflare KV — they write at least two different payload shapes. The `HTTP Request1` node in the WAZUH branch sends a `{updated_at, alerts}`-shaped payload (likely the key feeding the "Wazuh Son Alarmlar" panel on the dashboard), while another branch examined sends a completely different `{windowStart, windowEnd, ...}`-shaped payload (likely a separate, time-windowed counter key feeding the country-level data on the "Threat Live Map" panel). The 5 separate `HTTP Request` + `PUT` node pairs visible on the canvas (`HTTP Request1/2/3/5` and one unnamed `HTTP Request`) are evidence of this parallel, multi-key update architecture — the workflow doesn't produce a single "alert list," it simultaneously generates several independent datasets that feed different panels of the dashboard.
+### Finding — The workflow updates at least 2 different Cloudflare KV keys in parallel, not just one
+
+The 3 parallel branches on the canvas don't write a single shared dataset to Cloudflare KV — they write at least two different payload shapes. The `HTTP Request1` node in the WAZUH branch sends a `{updated_at, alerts}`-shaped payload (likely the key feeding the "Wazuh Son Alarmlar" panel on the dashboard), while another branch examined sends a completely different `{windowStart, windowEnd, ...}`-shaped payload (likely a separate, time-windowed counter key feeding the country-level data on the "Threat Live Map" panel). The 5 separate `HTTP Request` + `PUT` node pairs visible on the canvas (`HTTP Request1/2/3/5` and one unnamed `HTTP Request`) are evidence of this parallel, multi-key update architecture — the workflow doesn't produce a single "alert list," it simultaneously generates several independent datasets that feed different panels of the dashboard.
 
 ## Key Competencies Demonstrated
 

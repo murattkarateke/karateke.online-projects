@@ -78,7 +78,9 @@ Aynı Executions ekranının detayında (adım 8 ile aynı kaynak görüntü), t
 
 ## Bulgular
 
-**Bulgu — Workflow, tek değil en az 2 farklı Cloudflare KV anahtarını paralel güncelliyor:** Canvas'taki 3 paralel dal, ortak tek bir veri setini değil, en az iki farklı payload biçimini Cloudflare KV'ye yazıyor. WAZUH dalındaki `HTTP Request1` node'u `{updated_at, alerts}` biçiminde bir payload gönderirken (muhtemelen dashboard'daki "Wazuh Son Alarmlar" panelini besleyen anahtar), incelenen bir başka dal `{windowStart, windowEnd, ...}` biçiminde tamamen farklı bir payload gönderiyor (muhtemelen "Threat Live Map" panelindeki ülke bazlı zaman-pencereli sayaçları besleyen ayrı bir anahtar). Canvas'ta görünen 5 ayrı `HTTP Request` + `PUT` node çifti (`HTTP Request1/2/3/5` ve isimsiz `HTTP Request`) bu paralel, çoklu-anahtar güncelleme mimarisinin kanıtıdır — workflow tek bir "alarm listesi" değil, dashboard'un farklı panellerini besleyen birden fazla bağımsız veri setini eş zamanlı üretiyor.
+### Bulgu — Workflow, tek değil en az 2 farklı Cloudflare KV anahtarını paralel güncelliyor
+
+Canvas'taki 3 paralel dal, ortak tek bir veri setini değil, en az iki farklı payload biçimini Cloudflare KV'ye yazıyor. WAZUH dalındaki `HTTP Request1` node'u `{updated_at, alerts}` biçiminde bir payload gönderirken (muhtemelen dashboard'daki "Wazuh Son Alarmlar" panelini besleyen anahtar), incelenen bir başka dal `{windowStart, windowEnd, ...}` biçiminde tamamen farklı bir payload gönderiyor (muhtemelen "Threat Live Map" panelindeki ülke bazlı zaman-pencereli sayaçları besleyen ayrı bir anahtar). Canvas'ta görünen 5 ayrı `HTTP Request` + `PUT` node çifti (`HTTP Request1/2/3/5` ve isimsiz `HTTP Request`) bu paralel, çoklu-anahtar güncelleme mimarisinin kanıtıdır — workflow tek bir "alarm listesi" değil, dashboard'un farklı panellerini besleyen birden fazla bağımsız veri setini eş zamanlı üretiyor.
 
 ## Öne Çıkan Yetkinlikler
 

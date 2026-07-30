@@ -52,11 +52,15 @@ Toplama sonucu JSON formatında export edildi ve doğrulandı (`F.D9B961SS72FNU.
 
 ## Bulgular / Kök Neden Analizi
 
-**Bulgu A — Falco uyarıları false-positive:** Falco'nun "Read sensitive file untrusted" kuralı, `wazuh-modulesd` sürecinin `/etc/sudoers` ve `/etc/shadow` dosyalarını okumasını tetikliyordu. İnceleme sonucunda bunun Wazuh'un kendi meşru FIM/rootcheck aktivitesi olduğu, gerçek bir tehdit göstermediği doğrulandı. Bu, Falco'nun "trusted process" listesine Wazuh'un eklenmediğini gösteren bir yapılandırma iyileştirme fırsatıdır; gerçek bir olay simülasyonu yerine kontrollü test senaryosu tercih edilmesinin gerekçesidir.
+### Bulgu A — Falco uyarıları false-positive
+
+Falco'nun "Read sensitive file untrusted" kuralı, `wazuh-modulesd` sürecinin `/etc/sudoers` ve `/etc/shadow` dosyalarını okumasını tetikliyordu. İnceleme sonucunda bunun Wazuh'un kendi meşru FIM/rootcheck aktivitesi olduğu, gerçek bir tehdit göstermediği doğrulandı. Bu, Falco'nun "trusted process" listesine Wazuh'un eklenmediğini gösteren bir yapılandırma iyileştirme fırsatıdır; gerçek bir olay simülasyonu yerine kontrollü test senaryosu tercih edilmesinin gerekçesidir.
 
 ![Falco log incelemesi](screenshots/07-falco-log-review.png)
 
-**Bulgu B — SYSTEM hesabı erişim kısıtı:** Velociraptor Windows istemcisi `LocalSystem` hesabı altında çalışmaktadır. Varsayılan `auto` accessor ile kullanıcıya özel `AppData\Local\Temp` klasörüne erişim denemesi 0 sonuç döndürdü (izin kısıtlaması). `ntfs` accessor'a (düşük seviye, ham disk okuma) geçilerek bu kısıtlama aşıldı ve dosya başarıyla bulundu. Bu, DFIR araçlarının canlı dosya sistemi API'sine güvenmek yerine ham disk erişimini tercih etmesinin pratik bir gerekçesidir.
+### Bulgu B — SYSTEM hesabı erişim kısıtı
+
+Velociraptor Windows istemcisi `LocalSystem` hesabı altında çalışmaktadır. Varsayılan `auto` accessor ile kullanıcıya özel `AppData\Local\Temp` klasörüne erişim denemesi 0 sonuç döndürdü (izin kısıtlaması). `ntfs` accessor'a (düşük seviye, ham disk okuma) geçilerek bu kısıtlama aşıldı ve dosya başarıyla bulundu. Bu, DFIR araçlarının canlı dosya sistemi API'sine güvenmek yerine ham disk erişimini tercih etmesinin pratik bir gerekçesidir.
 
 ## Öne Çıkan Yetkinlikler
 

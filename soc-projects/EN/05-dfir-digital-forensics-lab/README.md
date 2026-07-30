@@ -52,11 +52,15 @@ The collection result was exported in JSON format and verified (`F.D9B961SS72FNU
 
 ## Findings / Root Cause Analysis
 
-**Finding A — Falco alerts are false positives:** Falco's "Read sensitive file untrusted" rule was being triggered by the `wazuh-modulesd` process reading `/etc/sudoers` and `/etc/shadow`. Investigation confirmed this to be Wazuh's own legitimate FIM/rootcheck activity, not an actual threat. This represents a configuration improvement opportunity — Wazuh is not yet added to Falco's "trusted process" list — and is the rationale for choosing a controlled test scenario over simulating a real incident.
+### Finding A — Falco alerts are false positives
+
+Falco's "Read sensitive file untrusted" rule was being triggered by the `wazuh-modulesd` process reading `/etc/sudoers` and `/etc/shadow`. Investigation confirmed this to be Wazuh's own legitimate FIM/rootcheck activity, not an actual threat. This represents a configuration improvement opportunity — Wazuh is not yet added to Falco's "trusted process" list — and is the rationale for choosing a controlled test scenario over simulating a real incident.
 
 ![Falco log review](screenshots/07-falco-log-review.png)
 
-**Finding B — SYSTEM account access restriction:** The Velociraptor Windows client runs under the `LocalSystem` account. With the default `auto` accessor, an attempt to access the user-specific `AppData\Local\Temp` folder returned 0 results (a permissions restriction). Switching to the `ntfs` accessor (low-level, raw disk read) bypassed this restriction and the file was found successfully. This is a practical justification for DFIR tools preferring raw disk access over relying on the live filesystem API.
+### Finding B — SYSTEM account access restriction
+
+The Velociraptor Windows client runs under the `LocalSystem` account. With the default `auto` accessor, an attempt to access the user-specific `AppData\Local\Temp` folder returned 0 results (a permissions restriction). Switching to the `ntfs` accessor (low-level, raw disk read) bypassed this restriction and the file was found successfully. This is a practical justification for DFIR tools preferring raw disk access over relying on the live filesystem API.
 
 ## Key Skills Demonstrated
 
