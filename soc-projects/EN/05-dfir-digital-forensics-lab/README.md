@@ -36,7 +36,9 @@ Get-Item "$env:TEMP\suspicious_test_payload.ps1"
 ![Test scenario command](screenshots/03-simulated-incident-command.png)
 
 ### 4. Artifact Collection Request
-The target file was searched for via the Velociraptor GUI using the `Windows.Search.FileFinder` artifact. The first attempt with the default `auto` accessor returned 0 results (see Findings, root cause analysis); switching to the `ntfs` accessor resolved the issue:![Artifact collection request](screenshots/04-velociraptor-artifact-collection-request.png)
+The target file was searched for via the Velociraptor GUI using the `Windows.Search.FileFinder` artifact. The first attempt with the default `auto` accessor returned 0 results (see Findings, root cause analysis); switching to the `ntfs` accessor resolved the issue:
+
+![Artifact collection request](screenshots/04-velociraptor-artifact-collection-request.png)
 
 ### 5. Reviewing the Results
 The collection completed successfully with 1 result row and 51/51 bytes uploaded. The results table presents the file path, all four MFT timestamps (MTime, ATime, CTime, BTime — all 2026-07-14T19:45:48.403Z), and three hash algorithms (MD5, SHA1, SHA256) in a single row. This table simultaneously covers both timeline analysis and hash extraction.
@@ -56,7 +58,7 @@ The collection result was exported in JSON format and verified (`F.D9B961SS72FNU
 
 **Finding B — SYSTEM account access restriction:** The Velociraptor Windows client runs under the `LocalSystem` account. With the default `auto` accessor, an attempt to access the user-specific `AppData\Local\Temp` folder returned 0 results (a permissions restriction). Switching to the `ntfs` accessor (low-level, raw disk read) bypassed this restriction and the file was found successfully. This is a practical justification for DFIR tools preferring raw disk access over relying on the live filesystem API.
 
-## Highlighted Skills
+## Key Skills Demonstrated
 
 - End-to-end installation and configuration of the Velociraptor DFIR platform
 - Windows Installer (MSI) troubleshooting and alternative service installation methods
@@ -70,13 +72,13 @@ The collection result was exported in JSON format and verified (`F.D9B961SS72FNU
 
 | # | File | Description |
 |---|---|---|
-| 1 | 01-velociraptor-server-status.png | Server service status (active/running) |
-| 2 | 02-velociraptor-client-connected.png | Client connection status (Connected) |
-| 3 | 03-simulated-incident-command.png | Controlled test file creation command |
-| 4 | 04-velociraptor-artifact-collection-request.png | Artifact collection request and parameters |
-| 5 | 05-velociraptor-collection-results.png | Collection results (timestamps + hashes) |
-| 6 | 06-velociraptor-report-export.png | JSON report export |
-| 7 | 07-falco-log-review.png | Falco log review (false-positive identification) |
+| 01 | 01-velociraptor-server-status.png | Server service status (active/running) |
+| 02 | 02-velociraptor-client-connected.png | Client connection status (Connected) |
+| 03 | 03-simulated-incident-command.png | Controlled test file creation command |
+| 04 | 04-velociraptor-artifact-collection-request.png | Artifact collection request and parameters |
+| 05 | 05-velociraptor-collection-results.png | Collection results (timestamps + hashes) |
+| 06 | 06-velociraptor-report-export.png | JSON report export |
+| 07 | 07-falco-log-review.png | Falco log review (false-positive identification) |
 
 ## Next Steps
 

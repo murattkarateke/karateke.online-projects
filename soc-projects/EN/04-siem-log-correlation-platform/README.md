@@ -101,7 +101,7 @@ Running `| eventcount summarize=false index=*` in Splunk showed that only the `h
 
 Despite Finding A, Splunk's own independent Sysmon/Windows telemetry provided indirect but real confirmation: `wazuh-agent.exe` appearing clearly in the `ParentImage`/`ParentCommandLine` fields confirms, from Splunk's own independent vantage point, that the Wazuh agent is genuinely running on the endpoint. In other words, there is currently **no full correlation, but there is complementary visibility** — the two platforms don't share the same data, but they can indirectly confirm each other's presence.
 
-## Key Competencies Demonstrated
+## Key Skills Demonstrated
 
 - Filtering and triaging real-time, high-priority (`rule.level >= 12`) alerts
 - Practically interpreting MITRE ATT&CK mapping (linking T1222/Defense Evasion to an audit-level event)

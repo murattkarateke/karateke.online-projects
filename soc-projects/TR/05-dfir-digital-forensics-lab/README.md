@@ -36,7 +36,9 @@ Get-Item "$env:TEMP\suspicious_test_payload.ps1"
 ![Test senaryosu komutu](screenshots/03-simulated-incident-command.png)
 
 ### 4. Artifact Toplama İsteği
-Velociraptor GUI üzerinden `Windows.Search.FileFinder` artifact'ı ile hedef dosya arandı. İlk denemede varsayılan `auto` accessor ile 0 sonuç alındı (bkz. Bulgular, kök neden analizi); `ntfs` accessor'a geçilerek sorun çözüldü:![Artifact toplama isteği](screenshots/04-velociraptor-artifact-collection-request.png)
+Velociraptor GUI üzerinden `Windows.Search.FileFinder` artifact'ı ile hedef dosya arandı. İlk denemede varsayılan `auto` accessor ile 0 sonuç alındı (bkz. Bulgular, kök neden analizi); `ntfs` accessor'a geçilerek sorun çözüldü:
+
+![Artifact toplama isteği](screenshots/04-velociraptor-artifact-collection-request.png)
 
 ### 5. Sonuçların İncelenmesi
 Toplama işlemi 1 satır sonuç, 51/51 byte upload ile başarıyla tamamlandı. Sonuç tablosu; dosya yolu, dört MFT zaman damgası (MTime, ATime, CTime, BTime — hepsi 2026-07-14T19:45:48.403Z), ve üç hash algoritmasını (MD5, SHA1, SHA256) tek satırda sunmaktadır. Bu tablo aynı zamanda zaman çizelgesi (timeline) analizini ve hash çıkarımını da karşılamaktadır.
@@ -70,13 +72,13 @@ Toplama sonucu JSON formatında export edildi ve doğrulandı (`F.D9B961SS72FNU.
 
 | # | Dosya | Açıklama |
 |---|---|---|
-| 1 | 01-velociraptor-server-status.png | Sunucu servis durumu (active/running) |
-| 2 | 02-velociraptor-client-connected.png | İstemci bağlantı durumu (Connected) |
-| 3 | 03-simulated-incident-command.png | Kontrollü test dosyası oluşturma komutu |
-| 4 | 04-velociraptor-artifact-collection-request.png | Artifact toplama isteği ve parametreler |
-| 5 | 05-velociraptor-collection-results.png | Toplama sonuçları (zaman damgaları + hash) |
-| 6 | 06-velociraptor-report-export.png | JSON rapor export |
-| 7 | 07-falco-log-review.png | Falco log incelemesi (false-positive tespiti) |
+| 01 | 01-velociraptor-server-status.png | Sunucu servis durumu (active/running) |
+| 02 | 02-velociraptor-client-connected.png | İstemci bağlantı durumu (Connected) |
+| 03 | 03-simulated-incident-command.png | Kontrollü test dosyası oluşturma komutu |
+| 04 | 04-velociraptor-artifact-collection-request.png | Artifact toplama isteği ve parametreler |
+| 05 | 05-velociraptor-collection-results.png | Toplama sonuçları (zaman damgaları + hash) |
+| 06 | 06-velociraptor-report-export.png | JSON rapor export |
+| 07 | 07-falco-log-review.png | Falco log incelemesi (false-positive tespiti) |
 
 ## Sonraki Aşamalar
 
