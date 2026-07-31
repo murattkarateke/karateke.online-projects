@@ -147,15 +147,16 @@ Beklenen ve alınan çıktı:
 ```
 HTTP/2 403
 ```
-Audit log kaydı (`/var/log/nginx/modsec_audit.log`):
+*Kanıt (HTTP yanıtı): `06-curl-xss-test-403.png`*
+
+![XSS testi - HTTP 403](screenshots/06-curl-xss-test-403.png)
+
+Referans amaçlı — ModSecurity'nin bu tür bir XSS isteğini normal şartlarda nasıl loglayacağına dair tipik bir audit log kaydı (`/var/log/nginx/modsec_audit.log`):
 ```
 [id "941100"] [msg "XSS Attack Detected via libinjection"]
 [id "949110"] [msg "Inbound Anomaly Score Exceeded (Total Score: 15)"]
 ```
-
-*Kanıt: `06-curl-xss-test-403.png`*
-
-![XSS testi - HTTP 403](screenshots/06-curl-xss-test-403.png)
+Ancak aşağıdaki split-screen testinde görüldüğü gibi, bu spesifik çalıştırmada istek ModSecurity'ye hiç ulaşmadan Cloudflare edge katmanında durduruldu — dolayısıyla bu log satırı bu örnekte oluşmadı; yukarıdaki kayıt yalnızca kuralın normal şartlarda ürettiği çıktıyı göstermek amacıyla referans olarak verilmiştir.
 
 Split-screen ile doğrulandı: sol panel `/var/log/nginx/modsec_audit.log` dosyasını canlı olarak `tail -f` ile izlerken, sağ panel aynı XSS isteğini gönderiyor. Bu özel çalıştırmada audit log'da yeni bir satır görünmedi — yanıt başlıkları (`server: cloudflare`, `cf-mitigated: challenge`) isteğin aslında bir ModSecurity kuralı tarafından değil, Cloudflare edge katmanında (managed challenge) nginx/ModSecurity'ye hiç ulaşmadan durdurulduğunu gösteriyor. Yine de bu değerli bir kanıt: korumanın katmanlar halinde çalıştığını, Cloudflare'in kendi edge'inin bazen ModSecurity'nin loglama fırsatı bulmasından önce payload'ı yakaladığını gösteriyor.
 
@@ -175,6 +176,8 @@ HTTP/2 403
 *Kanıt: `05-curl-sqli-test-403.png`*
 
 ![SQLi testi - HTTP 403](screenshots/05-curl-sqli-test-403.png)
+
+Bu yanıt başlıkları da (`cf-mitigated: challenge`, `server: cloudflare`) — XSS testindekiyle birebir aynı imza — isteğin Cloudflare edge katmanında durdurulduğunu gösteriyor; bu spesifik testte ayrı bir ModSecurity audit log doğrulaması yapılmadı.
 
 Otomatik sqlmap taraması ile de doğrulandı — WAF, 586 istekte 403 döndürerek sqlmap'in kendi sonucunda "does not seem to be injectable" (yani WAF, sqlmap'in tüm test paketini bloke etti) demesine yol açtı:
 

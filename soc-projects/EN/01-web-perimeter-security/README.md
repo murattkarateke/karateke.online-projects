@@ -147,15 +147,16 @@ Expected and actual output:
 ```
 HTTP/2 403
 ```
-Audit log entry (`/var/log/nginx/modsec_audit.log`):
+*Evidence (HTTP response): `06-curl-xss-test-403.png`*
+
+![XSS test - HTTP 403](screenshots/06-curl-xss-test-403.png)
+
+For reference — a typical audit log entry (`/var/log/nginx/modsec_audit.log`) showing how ModSecurity normally logs this kind of XSS request:
 ```
 [id "941100"] [msg "XSS Attack Detected via libinjection"]
 [id "949110"] [msg "Inbound Anomaly Score Exceeded (Total Score: 15)"]
 ```
-
-*Evidence: `06-curl-xss-test-403.png`*
-
-![XSS test - HTTP 403](screenshots/06-curl-xss-test-403.png)
+However, as the split-screen test below shows, in this specific run the request was stopped at the Cloudflare edge before it ever reached ModSecurity — so this log line did not actually occur in this instance; the entry above is provided purely as a reference for what the rule produces under normal circumstances.
 
 Verified with a split-screen: the left pane tails `/var/log/nginx/modsec_audit.log` live while the right pane fires the same XSS request. In this particular run, no new line appeared in the audit log — the response headers (`server: cloudflare`, `cf-mitigated: challenge`) show the request was actually stopped at the Cloudflare edge (managed challenge) before it ever reached nginx/ModSecurity, not by a ModSecurity rule. This is still useful evidence: it shows the protection operates in layers, with Cloudflare's own edge sometimes intercepting a payload before ModSecurity gets a chance to log it.
 
@@ -175,6 +176,8 @@ HTTP/2 403
 *Evidence: `05-curl-sqli-test-403.png`*
 
 ![SQLi test - HTTP 403](screenshots/05-curl-sqli-test-403.png)
+
+These response headers also (`cf-mitigated: challenge`, `server: cloudflare`) — the same signature as the XSS test — indicate the request was stopped at the Cloudflare edge; a separate ModSecurity audit log confirmation was not performed for this specific test.
 
 Also confirmed with an automated sqlmap scan — the WAF returned 403 on 586 requests, causing sqlmap itself to conclude the parameter "does not seem to be injectable" (i.e., the WAF blocked sqlmap's entire test suite):
 
