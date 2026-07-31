@@ -41,7 +41,7 @@ Saldırı simülasyonları, ağ üzerinde 192.168.1.188 adresine sahip ayrı bir
 
 - **Hydra ile SSH brute-force** denemesi yapıldı, ancak wordlist dosyasında biçim hatası nedeniyle araç hata verdi ve tamamlanmadı.
 - **Hydra ile HTTP form brute-force** denemesi de aynı wordlist hatasıyla sonuçlandı.
-- **Manuel SSH bağlantı denemeleri** (10 kez ardışık) yapıldı; hepsi `Connection timed out` hatasıyla sonuçlandı. Bunun nedeni, hedef sunucudaki (`192.168.1.149`) ağ segmentasyon kuralının SSH erişimini yalnızca yönetici makinesi `192.168.1.151`'e izin vermesidir — Kali makinesi `.188` olduğu için bu kural tarafından engellenmiştir. **Bu, ağ seviyesinde çalışan bir savunma katmanının doğrudan kanıtıdır.**
+- **Manuel SSH bağlantı denemeleri** `for i in {1..10}` döngüsüyle (10 kez ardışık) çalıştırıldı; ekran görüntüsünde **9** tamamlanmış `Connection timed out` satırı görünüyor (döngü 10 iterasyon için yapılandırılmıştı, ancak ekran görüntüsünde yalnızca 9 tamamlanmış sonuç görünüyor — büyük olasılıkla görüntü 10. satır yazdırılmadan hemen önce alındığı için). Tamamlanan tüm denemeler `Connection timed out` hatasıyla sonuçlandı. Bunun nedeni, hedef sunucudaki (`192.168.1.149`) ağ segmentasyon kuralının SSH erişimini yalnızca yönetici makinesi `192.168.1.151`'e izin vermesidir — Kali makinesi `.188` olduğu için bu kural tarafından engellenmiştir. **Bu, ağ seviyesinde çalışan bir savunma katmanının doğrudan kanıtıdır.**
 
 *Kanıtlar: `01-hydra-ssh-bruteforce-attempt-fail.png`, `02-hydra-http-bruteforce-attempt-fail.png`, `03-manual-ssh-connection-attempts-timeout.png`*
 
@@ -96,7 +96,13 @@ Falco, `wazuh-syscheckd` sürecinin `/etc/pam.d/passwd`, `chfn`, `sudo`, `chpass
 | http:bruteforce | 1.831 |
 | http:exploit | 1.334 |
 | ssh:bruteforce | 1.045 |
+| http:scan | 300 |
+| http:dos | 270 |
 | ssh:exploit | 137 |
+| http:crawl | 79 |
+| generic:scan | 33 |
+| vm-management:exploit | 1 |
+| **Toplam** | **5.030** |
 
 Bu, sunucunun **hiçbir saldırı denemesi olmadan bile** küresel bir tehdit istihbaratı ağından faydalanarak koruma altında olduğunu gösterir.
 

@@ -41,7 +41,7 @@ Attack simulations were run from a separate Kali Linux machine at 192.168.1.188 
 
 - An **SSH brute-force attempt via Hydra** failed due to a wordlist formatting error.
 - An **HTTP form brute-force attempt via Hydra** failed with the same wordlist error.
-- **10 consecutive manual SSH connection attempts** all resulted in `Connection timed out`. This is because network segmentation on the target (`192.168.1.149`) restricts SSH access to the admin machine at `192.168.1.151` only — since the Kali machine is `.188`, it was blocked at the network layer. **This is direct evidence of an active network-level defense control.**
+- **10 consecutive manual SSH connection attempts** were made via a `for i in {1..10}` loop; the captured terminal output shows **9** completed `Connection timed out` lines (the loop was configured for 10 iterations, but only 9 completed results appear in the screenshot, most likely because the capture was taken before the 10th line printed). All completed attempts resulted in `Connection timed out`. This is because network segmentation on the target (`192.168.1.149`) restricts SSH access to the admin machine at `192.168.1.151` only — since the Kali machine is `.188`, it was blocked at the network layer. **This is direct evidence of an active network-level defense control.**
 
 *Evidence: `01-hydra-ssh-bruteforce-attempt-fail.png`, `02-hydra-http-bruteforce-attempt-fail.png`, `03-manual-ssh-connection-attempts-timeout.png`*
 
@@ -96,7 +96,13 @@ Queries for `USER_LOGIN` and `USER_AUTH` events returned `<no matches>` at this 
 | http:bruteforce | 1,831 |
 | http:exploit | 1,334 |
 | ssh:bruteforce | 1,045 |
+| http:scan | 300 |
+| http:dos | 270 |
 | ssh:exploit | 137 |
+| http:crawl | 79 |
+| generic:scan | 33 |
+| vm-management:exploit | 1 |
+| **Total** | **5,030** |
 
 This demonstrates that the server benefits from a global threat intelligence network **even before any attack attempt occurs locally**.
 
