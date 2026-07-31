@@ -76,8 +76,8 @@ The first command (port 80, direct to the origin IP) failed to connect ("Could n
 
 *Evidence: `03-curl-http-https-request-v1.png`, `04-curl-http-https-request-v2.png`*
 
-![HTTP/HTTPS request test - connection and TLS handshake](screenshots/03-curl-http-https-request-v1.png)
-![HTTP/HTTPS request test - full response headers (WAF 403)](screenshots/04-curl-http-https-request-v2.png)
+![HTTP/HTTPS request test - connection and TLS handshake (IP/hostname fields redacted for privacy)](screenshots/03-curl-http-https-request-v1.png)
+![HTTP/HTTPS request test - full response headers (WAF 403) (IP/hostname fields redacted for privacy)](screenshots/04-curl-http-https-request-v2.png)
 
 ```bash
 curl -A "() { :; }; echo VULNERABLE" http://192.168.1.149/

@@ -76,8 +76,8 @@ curl -v https://karateke.online/ 2>&1 | tee /root/proj02-https-request.txt
 
 *Kanıtlar: `03-curl-http-https-request-v1.png`, `04-curl-http-https-request-v2.png`*
 
-![HTTP/HTTPS istek testi - bağlantı ve TLS el sıkışması](screenshots/03-curl-http-https-request-v1.png)
-![HTTP/HTTPS istek testi - tam yanıt başlıkları (WAF 403)](screenshots/04-curl-http-https-request-v2.png)
+![HTTP/HTTPS istek testi - bağlantı ve TLS el sıkışması (IP/hostname alanları gizlilik amacıyla karartılmıştır)](screenshots/03-curl-http-https-request-v1.png)
+![HTTP/HTTPS istek testi - tam yanıt başlıkları (WAF 403) (IP/hostname alanları gizlilik amacıyla karartılmıştır)](screenshots/04-curl-http-https-request-v2.png)
 
 ```bash
 curl -A "() { :; }; echo VULNERABLE" http://192.168.1.149/
