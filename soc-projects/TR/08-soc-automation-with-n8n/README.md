@@ -24,7 +24,7 @@ n8n container'ı çalışır durumda (`Up 11 hours`), yalnızca `127.0.0.1:5678`
 
 ### 2. Workflow Mimarisi Genel Görünümü
 
-n8n canvas'ında tek bir `Schedule Trigger`'dan başlayıp 3 paralel dala ayrılan tam workflow incelendi: WAZUH dalı, SPLUNK dalı ve doğrudan bir Cloudflare/HTTP Request dalı — her biri kendi `Code in JavaScript` ve `HTTP Request` (Cloudflare `PUT`) node çiftleriyle sonlanıyor.
+n8n canvas'ında tek bir `Schedule Trigger`'dan başlayıp 3 paralel dala ayrılan tam workflow incelendi: WAZUH dalı, SPLUNK dalı ve paylaşılan bir Cloudflare `HTTP Request` (POST) çekişiyle başlayan üçüncü bir dal. WAZUH ve SPLUNK dalları kendi `Code in JavaScript` → `HTTP Request` (Cloudflare `PUT`) çiftleriyle sonlanıyor; üçüncü daldaki paylaşılan çekiş ise bir `Code in JavaScript2` dönüştürme node'unu besliyor, bu node da kendi içinde ikiye ayrılıp iki ayrı `Code in JavaScript` → `HTTP Request` (`PUT`) çiftini besliyor — toplamda dal başına bir değil, **4** PUT ile biten çift var.
 
 ![n8n workflow canvas genel görünüm](screenshots/02-n8n-workflow-canvas-overview.png)
 
@@ -66,13 +66,13 @@ n8n'in "Executions" ekranında, workflow'un production'da gerçek zamanlı ve ke
 
 ### 9. Uçtan Uca Kanıt: SOC Dashboard Canlı Sonucu
 
-`karateke.online/soc-dashboard` sayfası, bu workflow'un ürettiği veriyi canlı olarak gösteriyor: "CANLI VERİ AKIŞI / THREAT LIVE MAP", "WAZUH SON ALARMLAR" ve "SPLUNK ANALİZ ÖZETİ" panelleri — zincirin (Wazuh/Splunk → n8n → Cloudflare KV → dashboard) uçtan uca çalıştığının görsel kanıtı.
+`karateke.online/soc-dashboard` sayfası, bu workflow'un ürettiği veriyi canlı olarak gösteriyor: ekran görüntüsü alındığı anda "CANLI VERİ AKIŞI / THREAT LIVE MAP" ve "SPLUNK ANALİZ ÖZETİ" panelleri gerçek, sıfır olmayan veriler gösteriyor (ülke bazlı trafik sayıları, Info/Warning/Critical/Other dağılımı); "WAZUH SON ALARMLAR" paneli ve alarm sayaçları ise boş/sıfır ("Şu anda alarm yok") — çünkü o pencerede gerçekten yeni bir Wazuh alarmı yoktu, pipeline'ın çalışmamasından değil. Bir bütün olarak bu, dashboard'un uçtan uca canlı veri gösterebildiğinin — alarm olmadığında sessiz/boş durumu da doğru şekilde yansıttığının — dürüst bir görsel kanıtıdır.
 
 ![SOC dashboard canlı veri sonucu](screenshots/09-soc-dashboard-live-data-result.png)
 
 ### 10. Uçtan Uca Zamanlama
 
-Aynı Executions ekranının detayında (adım 8 ile aynı kaynak görüntü), tek bir execution'ın süresi görüldü: `Succeeded in 2.196s`, `ID#1343` — tetikten Cloudflare KV yazımına kadar geçen toplam süre yaklaşık 2-3.7 saniye aralığında.
+Aynı Executions ekranının detayında (adım 8 ile aynı kaynak görüntü), tek bir execution'ın süresi görüldü: `Succeeded in 2.196s`, `ID#1343` — tetikten Cloudflare KV yazımına kadar geçen toplam süre, görünen execution geçmişinde yaklaşık 2,0-5,6 saniye aralığında değişiyor (çoğu execution 2-3 saniye civarında kümeleniyor, 01:22:22 kaydında 5,577 saniyelik bir aykırı değer var).
 
 ![Execution süresi - Succeeded in 2.196s (adım 8 ile aynı kaynak görüntü)](screenshots/10-end-to-end-workflow-timing.png)
 
@@ -80,7 +80,7 @@ Aynı Executions ekranının detayında (adım 8 ile aynı kaynak görüntü), t
 
 ### Bulgu — Workflow, tek değil en az 2 farklı Cloudflare KV anahtarını paralel güncelliyor
 
-Canvas'taki 3 paralel dal, ortak tek bir veri setini değil, en az iki farklı payload biçimini Cloudflare KV'ye yazıyor. WAZUH dalındaki `HTTP Request1` node'u `{updated_at, alerts}` biçiminde bir payload gönderirken (muhtemelen dashboard'daki "Wazuh Son Alarmlar" panelini besleyen anahtar), incelenen bir başka dal `{windowStart, windowEnd, ...}` biçiminde tamamen farklı bir payload gönderiyor (muhtemelen "Threat Live Map" panelindeki ülke bazlı zaman-pencereli sayaçları besleyen ayrı bir anahtar). Canvas'ta görünen 5 ayrı `HTTP Request` + `PUT` node çifti (`HTTP Request1/2/3/5` ve isimsiz `HTTP Request`) bu paralel, çoklu-anahtar güncelleme mimarisinin kanıtıdır — workflow tek bir "alarm listesi" değil, dashboard'un farklı panellerini besleyen birden fazla bağımsız veri setini eş zamanlı üretiyor.
+Canvas'taki 3 paralel dal, ortak tek bir veri setini değil, en az iki farklı payload biçimini Cloudflare KV'ye yazıyor. WAZUH dalındaki `HTTP Request1` node'u `{updated_at, alerts}` biçiminde bir payload gönderirken (muhtemelen dashboard'daki "Wazuh Son Alarmlar" panelini besleyen anahtar), incelenen bir başka dal `{windowStart, windowEnd, ...}` biçiminde tamamen farklı bir payload gönderiyor (muhtemelen "Threat Live Map" panelindeki ülke bazlı zaman-pencereli sayaçları besleyen ayrı bir anahtar). Canvas'ta görünen **4** ayrı `HTTP Request` + `PUT` node çifti (`HTTP Request1`, `HTTP Request2`, `HTTP Request3`, `HTTP Request5` — artı, bunlardan ikisini üstten besleyen, kendisi bir çift olmayan isimsiz ve paylaşılan bir `HTTP Request` (POST) node'u) bu paralel, çoklu-anahtar güncelleme mimarisinin kanıtıdır — workflow tek bir "alarm listesi" değil, dashboard'un farklı panellerini besleyen birden fazla bağımsız veri setini eş zamanlı üretiyor.
 
 ## Öne Çıkan Yetkinlikler
 

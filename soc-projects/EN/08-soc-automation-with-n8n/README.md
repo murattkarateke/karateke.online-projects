@@ -24,7 +24,7 @@ The n8n container is running (`Up 11 hours`), bound only to `127.0.0.1:5678` —
 
 ### 2. Workflow Architecture Overview
 
-The n8n canvas was reviewed end to end: a single `Schedule Trigger` branches into 3 parallel paths — a WAZUH branch, a SPLUNK branch, and a direct Cloudflare/HTTP Request branch — each ending in its own `Code in JavaScript` and `HTTP Request` (Cloudflare `PUT`) node pair.
+The n8n canvas was reviewed end to end: a single `Schedule Trigger` branches into 3 parallel paths — a WAZUH branch, a SPLUNK branch, and a third branch that starts with a shared Cloudflare `HTTP Request` (POST) fetch. The WAZUH and SPLUNK branches each end in their own `Code in JavaScript` → `HTTP Request` (Cloudflare `PUT`) pair; the third branch's shared fetch feeds a `Code in JavaScript2` transform node that itself forks into two further `Code in JavaScript` → `HTTP Request` (`PUT`) pairs — 4 PUT-ending pairs in total, not one per branch.
 
 ![n8n workflow canvas overview](screenshots/02-n8n-workflow-canvas-overview.png)
 
@@ -66,13 +66,13 @@ In n8n's "Executions" screen, the workflow was confirmed to run continuously and
 
 ### 9. End-to-End Proof: SOC Dashboard Live Result
 
-The `karateke.online/soc-dashboard` page displays the data produced by this workflow live: the "CANLI VERİ AKIŞI / THREAT LIVE MAP", "WAZUH SON ALARMLAR", and "SPLUNK ANALİZ ÖZETİ" panels — visual proof that the full chain (Wazuh/Splunk → n8n → Cloudflare KV → dashboard) works end to end.
+The `karateke.online/soc-dashboard` page displays the data produced by this workflow live: the "CANLI VERİ AKIŞI / THREAT LIVE MAP" and "SPLUNK ANALİZ ÖZETİ" panels show real, non-zero data (country-level traffic counts, an Info/Warning/Critical/Other breakdown) at capture time, while the "WAZUH SON ALARMLAR" panel and the alert counters read empty/zero (`Şu anda alarm yok`) — because there simply were no recent Wazuh alerts in that window, not because the pipeline failed. Taken together, this is honest visual proof that the dashboard can render live data end to end, including correctly rendering a quiet/empty state when there is nothing to report.
 
 ![SOC dashboard live data result](screenshots/09-soc-dashboard-live-data-result.png)
 
 ### 10. End-to-End Timing
 
-The detail view of the same Executions screen (same source screenshot as step 8) shows a single execution's duration: `Succeeded in 2.196s`, `ID#1343` — the total time from trigger to Cloudflare KV write is roughly in the 2–3.7 second range.
+The detail view of the same Executions screen (same source screenshot as step 8) shows a single execution's duration: `Succeeded in 2.196s`, `ID#1343` — the total time from trigger to Cloudflare KV write, across the visible execution history, ranges from about 2.0s to 5.6s (most executions cluster around 2–3s, with one outlier at 5.577s at 01:22:22).
 
 ![Execution timing - Succeeded in 2.196s (same source screenshot as step 8)](screenshots/10-end-to-end-workflow-timing.png)
 
@@ -80,7 +80,7 @@ The detail view of the same Executions screen (same source screenshot as step 8)
 
 ### Finding — The workflow updates at least 2 different Cloudflare KV keys in parallel, not just one
 
-The 3 parallel branches on the canvas don't write a single shared dataset to Cloudflare KV — they write at least two different payload shapes. The `HTTP Request1` node in the WAZUH branch sends a `{updated_at, alerts}`-shaped payload (likely the key feeding the "Wazuh Son Alarmlar" panel on the dashboard), while another branch examined sends a completely different `{windowStart, windowEnd, ...}`-shaped payload (likely a separate, time-windowed counter key feeding the country-level data on the "Threat Live Map" panel). The 5 separate `HTTP Request` + `PUT` node pairs visible on the canvas (`HTTP Request1/2/3/5` and one unnamed `HTTP Request`) are evidence of this parallel, multi-key update architecture — the workflow doesn't produce a single "alert list," it simultaneously generates several independent datasets that feed different panels of the dashboard.
+The 3 parallel branches on the canvas don't write a single shared dataset to Cloudflare KV — they write at least two different payload shapes. The `HTTP Request1` node in the WAZUH branch sends a `{updated_at, alerts}`-shaped payload (likely the key feeding the "Wazuh Son Alarmlar" panel on the dashboard), while another branch examined sends a completely different `{windowStart, windowEnd, ...}`-shaped payload (likely a separate, time-windowed counter key feeding the country-level data on the "Threat Live Map" panel). The **4** separate `HTTP Request` + `PUT` node pairs visible on the canvas (`HTTP Request1`, `HTTP Request2`, `HTTP Request3`, `HTTP Request5` — plus one unnamed, shared `HTTP Request` (POST) node that fetches data upstream for two of those pairs rather than being a pair itself) are evidence of this parallel, multi-key update architecture — the workflow doesn't produce a single "alert list," it simultaneously generates several independent datasets that feed different panels of the dashboard.
 
 ## Key Competencies Demonstrated
 
