@@ -80,9 +80,10 @@ Sonuç: taranan 1000 portun tamamı "ignored/filtered" durumda — sunucu ağ se
 
 ![Nmap top-ports taraması](screenshots/01-nmap-top-ports-scan.png)
 
-**Nikto — otomatik web zafiyet taraması (karateke.online üzerinden, Cloudflare arkasında):**
+**Nikto — otomatik web zafiyet taraması (karateke.online üzerinden, Cloudflare arkasında), iki kez çalıştırıldı:**
 ```bash
-nikto -h https://karateke.online -o /root/nikto-result.txt
+nikto -h https://karateke.online -o /root/nikto-result.txt         # 1. çalıştırma
+nikto -h https://karateke.online -o /root/nikto-domain-result.txt  # 2. çalıştırma
 ```
 İki ayrı çalıştırmada da tarama, Cloudflare'in bot/rate-limit korumasına takıldı: `cf-mitigated: challenge` başlığı tetiklendi ve "Error limit (20) reached for host" ile araç erken sonlandı. Aynı sonucun iki bağımsız çalıştırmada da tekrarlanması, bu engellemenin tesadüf değil tutarlı/tekrarlanabilir bir savunma davranışı olduğunu gösterir.
 
@@ -140,13 +141,13 @@ Origin sunucunun dışarıdan tamamen erişilemez olduğu böylece çok yönlü 
 
 **XSS test isteği:**
 ```bash
-curl -i "https://karateke.online/?q=<script>alert(1)</script>"
+curl -I "https://karateke.online/?test=<script>alert(1)</script>"
 ```
 Beklenen ve alınan çıktı:
 ```
 HTTP/2 403
 ```
-Audit log kaydı (`/var/log/modsecurity/audit.log`):
+Audit log kaydı (`/var/log/nginx/modsec_audit.log`):
 ```
 [id "941100"] [msg "XSS Attack Detected via libinjection"]
 [id "949110"] [msg "Inbound Anomaly Score Exceeded (Total Score: 15)"]
@@ -156,7 +157,7 @@ Audit log kaydı (`/var/log/modsecurity/audit.log`):
 
 ![XSS testi - HTTP 403](screenshots/06-curl-xss-test-403.png)
 
-Test sırasında audit log'un aynı anda güncellendiği split-screen ile canlı doğrulandı:
+Split-screen ile doğrulandı: sol panel `/var/log/nginx/modsec_audit.log` dosyasını canlı olarak `tail -f` ile izlerken, sağ panel aynı XSS isteğini gönderiyor. Bu özel çalıştırmada audit log'da yeni bir satır görünmedi — yanıt başlıkları (`server: cloudflare`, `cf-mitigated: challenge`) isteğin aslında bir ModSecurity kuralı tarafından değil, Cloudflare edge katmanında (managed challenge) nginx/ModSecurity'ye hiç ulaşmadan durdurulduğunu gösteriyor. Yine de bu değerli bir kanıt: korumanın katmanlar halinde çalıştığını, Cloudflare'in kendi edge'inin bazen ModSecurity'nin loglama fırsatı bulmasından önce payload'ı yakaladığını gösteriyor.
 
 *Kanıt: `18-split-screen-live-audit-log-monitoring.png`*
 
@@ -164,7 +165,7 @@ Test sırasında audit log'un aynı anda güncellendiği split-screen ile canlı
 
 **SQL Injection test isteği:**
 ```bash
-curl -i "https://karateke.online/?id=1' OR '1'='1"
+curl -I "https://karateke.online/?id=1%27%20OR%20%271%27=%271%27"
 ```
 Beklenen ve alınan çıktı:
 ```

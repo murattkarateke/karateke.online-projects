@@ -80,9 +80,10 @@ Result: all 1000 scanned ports are in "ignored/filtered" state — the server is
 
 ![Nmap top-ports scan](screenshots/01-nmap-top-ports-scan.png)
 
-**Nikto — automated web vulnerability scan (against karateke.online, behind Cloudflare):**
+**Nikto — automated web vulnerability scan (against karateke.online, behind Cloudflare), run twice:**
 ```bash
-nikto -h https://karateke.online -o /root/nikto-result.txt
+nikto -h https://karateke.online -o /root/nikto-result.txt         # run 1
+nikto -h https://karateke.online -o /root/nikto-domain-result.txt  # run 2
 ```
 In both separate runs, the scan hit Cloudflare's bot/rate-limit protection: the `cf-mitigated: challenge` header was triggered and the tool terminated early with "Error limit (20) reached for host". The same outcome repeating across two independent runs shows this blocking is a consistent, repeatable defense behavior rather than a coincidence.
 
@@ -140,13 +141,13 @@ This confirms from multiple angles that the origin server is completely unreacha
 
 **XSS test request:**
 ```bash
-curl -i "https://karateke.online/?q=<script>alert(1)</script>"
+curl -I "https://karateke.online/?test=<script>alert(1)</script>"
 ```
 Expected and actual output:
 ```
 HTTP/2 403
 ```
-Audit log entry (`/var/log/modsecurity/audit.log`):
+Audit log entry (`/var/log/nginx/modsec_audit.log`):
 ```
 [id "941100"] [msg "XSS Attack Detected via libinjection"]
 [id "949110"] [msg "Inbound Anomaly Score Exceeded (Total Score: 15)"]
@@ -156,7 +157,7 @@ Audit log entry (`/var/log/modsecurity/audit.log`):
 
 ![XSS test - HTTP 403](screenshots/06-curl-xss-test-403.png)
 
-Live-verified with a split-screen showing the audit log updating in real time during the test:
+Verified with a split-screen: the left pane tails `/var/log/nginx/modsec_audit.log` live while the right pane fires the same XSS request. In this particular run, no new line appeared in the audit log — the response headers (`server: cloudflare`, `cf-mitigated: challenge`) show the request was actually stopped at the Cloudflare edge (managed challenge) before it ever reached nginx/ModSecurity, not by a ModSecurity rule. This is still useful evidence: it shows the protection operates in layers, with Cloudflare's own edge sometimes intercepting a payload before ModSecurity gets a chance to log it.
 
 *Evidence: `18-split-screen-live-audit-log-monitoring.png`*
 
@@ -164,7 +165,7 @@ Live-verified with a split-screen showing the audit log updating in real time du
 
 **SQL Injection test request:**
 ```bash
-curl -i "https://karateke.online/?id=1' OR '1'='1"
+curl -I "https://karateke.online/?id=1%27%20OR%20%271%27=%271%27"
 ```
 Expected and actual output:
 ```
