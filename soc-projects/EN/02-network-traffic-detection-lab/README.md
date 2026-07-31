@@ -72,7 +72,7 @@ Various HTTP(S) requests and connection attempts were generated to verify the ID
 curl -v http://192.168.1.149/ 2>&1 | tee /root/proj02-http-request.txt
 curl -v https://karateke.online/ 2>&1 | tee /root/proj02-https-request.txt
 ```
-The first command (port 80, direct to the origin IP) failed to connect ("Could not connect to server"); the second showed the full TLS 1.3 handshake (certificate chain, ALPN, cipher suite) and ended in `HTTP/2 403` (blocked by the WAF). Two separate screenshots capture the same test session: the connection/handshake process (v1), and the full response headers that follow, including `cf-mitigated: challenge` (v2):
+The first command (port 80, direct to the origin IP) failed to connect ("Could not connect to server"); the second showed the full TLS 1.3 handshake (certificate chain, ALPN, cipher suite) and ended in `HTTP/2 403` (blocked by the WAF). Two separate screenshots capture the same test session: v1 shows the TLS 1.3 handshake through the initial response headers (already including the `HTTP/2 403` status line and headers like `date`, `content-type`, `accept-ch`), and v2 continues into the remaining response headers, including `cf-mitigated: challenge`:
 
 *Evidence: `03-curl-http-https-request-v1.png`, `04-curl-http-https-request-v2.png`*
 
@@ -103,12 +103,12 @@ The Suricata package was installed with its listening network interface defined 
 
 **Suricata service status:**
 ```bash
-systemctl status suricata
+sudo systemctl status suricata --no-pager
 ```
 Expected output:
 ```
 ● suricata.service - Suricata IDS/IPS daemon
-     Loaded: loaded (/lib/systemd/system/suricata.service; enabled)
+     Loaded: loaded (/usr/lib/systemd/system/suricata.service; enabled; preset: enabled)
      Active: active (running)
 ```
 
@@ -118,7 +118,7 @@ Expected output:
 
 **Live alert stream:**
 ```bash
-tail -f /var/log/suricata/fast.log
+sudo tail -f /var/log/suricata/fast.log
 ```
 Mostly low-priority (Priority 3) ET INFO alerts (routine traffic such as STUN/NAT traversal) were observed, along with a couple of protocol anomalies ("Ethertype unknown", "Applayer Detect protocol only one direction").
 
@@ -128,7 +128,7 @@ Mostly low-priority (Priority 3) ET INFO alerts (routine traffic such as STUN/NA
 
 **Detailed JSON log:**
 ```bash
-tail -50 /var/log/suricata/eve.json | jq .
+sudo tail -50 /var/log/suricata/eve.json | jq .
 ```
 Connections from the Kali machine (192.168.1.188) to the target (192.168.1.149) are visible in detail as "flow" type JSON events.
 
@@ -153,7 +153,7 @@ When the Zeek package was installed, it turned out the installation only provide
 
 **Zeek systemd unit status:**
 ```bash
-systemctl status zeek
+sudo systemctl status zeek --no-pager
 ```
 Expected output: `Active: active (running)` — the log shows it was started via `zeekctl`.
 
@@ -163,7 +163,7 @@ Expected output: `Active: active (running)` — the log shows it was started via
 
 **Connection records (conn.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/conn.log
+sudo tail -20 /opt/zeek/logs/current/conn.log
 ```
 Among various TCP/UDP connection records, an `S0` (half-open — no response received) connection attempt from the Kali machine (192.168.1.188) to the target's SSH port (22) is also visible — an independent confirmation that overlaps with the `06` `nc` test. Conn.log fields (duration, byte counts, connection state letters) can summarize a connection's entire lifecycle in a single line.
 
@@ -173,7 +173,7 @@ Among various TCP/UDP connection records, an `S0` (half-open — no response rec
 
 **DNS queries (dns.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/dns.log
+sudo tail -20 /opt/zeek/logs/current/dns.log
 ```
 Various outbound DNS queries (Cloudflare, Microsoft, Mozilla, claude.ai, etc.) recorded at the protocol level.
 
@@ -183,7 +183,7 @@ Various outbound DNS queries (Cloudflare, Microsoft, Mozilla, claude.ai, etc.) r
 
 **HTTP requests (http.log, two different points in time):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/http.log
+sudo tail -20 /opt/zeek/logs/current/http.log
 ```
 Mostly Go-http-client "generate_204" (captive portal check) requests, along with some Firefox and UPnP (SUBSCRIBE/UNSUBSCRIBE) traffic. The second snapshot shows the same log file slightly later, confirming new lines were appended over time.
 
@@ -194,9 +194,9 @@ Mostly Go-http-client "generate_204" (captive portal check) requests, along with
 
 **TLS/SSL connections (ssl.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/ssl.log
+sudo tail -20 /opt/zeek/logs/current/ssl.log
 ```
-Numerous outbound TLS 1.3 connections (ChatGPT, Bing, Office 365, Google API, etc.) recorded at the protocol level.
+Mostly outbound TLS 1.3 connections (ChatGPT, Bing, Office 365, Google API, etc.) were recorded at the protocol level, along with at least one TLSv1.2 connection (negotiating a `TLS_ECD...` cipher with ALPN `h2`) visible in the same log window.
 
 *Evidence: `17-zeek-ssl-log.png`*
 
@@ -204,7 +204,7 @@ Numerous outbound TLS 1.3 connections (ChatGPT, Bing, Office 365, Google API, et
 
 **Protocol anomalies (weird.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/weird.log
+sudo tail -20 /opt/zeek/logs/current/weird.log
 ```
 Behaviors Zeek flags as non-standard were recorded, such as "unknown_HTTP_method" (UPnP SUBSCRIBE/UNSUBSCRIBE), "data_before_established", and "active_connection_reuse" — not attacks, but protocol deviations worth reviewing.
 
@@ -214,8 +214,10 @@ Behaviors Zeek flags as non-standard were recorded, such as "unknown_HTTP_method
 
 **Notices (notice.log) — SSL certificate warnings:**
 ```bash
-tail -n 20 /opt/zeek/logs/current/notice.log
+sudo tail -20 /opt/zeek/logs/current/notice.log 2>/dev/null || echo "notice.log henüz oluşmadı"
 ```
+(The command includes a Turkish-language fallback message — `"notice.log henüz oluşmadı"` ("notice.log doesn't exist yet") — visible in the terminal capture. This comes from the operator's own shell session, not from Zeek itself, and would only print if the log file didn't exist yet; in this run the file did exist, so the actual log content shown below is what printed.)
+
 Numerous "SSL certificate validation failed... unable to get local issuer certificate" notices were observed (e.g., related to Microsoft and Kaspersky certificate chains) — this stems from a missing certificate/chain on the client side (Windows), correctly captured by Zeek.
 
 *Evidence: `19-zeek-notice-log-ssl-cert-warnings.png`*

@@ -72,7 +72,7 @@ IDS/NSM katmanının gerçek trafik üzerinde çalıştığını doğrulamak iç
 curl -v http://192.168.1.149/ 2>&1 | tee /root/proj02-http-request.txt
 curl -v https://karateke.online/ 2>&1 | tee /root/proj02-https-request.txt
 ```
-İlk komut (port 80, doğrudan origin IP) bağlanamadı ("Could not connect to server"); ikinci komut ise TLS 1.3 el sıkışmasının tamamını (sertifika zinciri, ALPN, cipher suite) gösterip sonunda `HTTP/2 403` (WAF tarafından engellendi) ile sonuçlandı. İki ayrı ekran görüntüsü, aynı test oturumunun bağlantı/el sıkışma sürecini (v1) ve devamında dönen tam yanıt başlıklarını (`cf-mitigated: challenge` dahil, v2) gösteriyor:
+İlk komut (port 80, doğrudan origin IP) bağlanamadı ("Could not connect to server"); ikinci komut ise TLS 1.3 el sıkışmasının tamamını (sertifika zinciri, ALPN, cipher suite) gösterip sonunda `HTTP/2 403` (WAF tarafından engellendi) ile sonuçlandı. İki ayrı ekran görüntüsü aynı test oturumunu gösteriyor: v1, TLS 1.3 el sıkışmasından başlayıp ilk yanıt başlıklarına kadar uzanıyor (zaten `HTTP/2 403` durum satırını ve `date`, `content-type`, `accept-ch` gibi başlıkları içeriyor); v2 ise `cf-mitigated: challenge` dahil kalan yanıt başlıklarıyla devam ediyor:
 
 *Kanıtlar: `03-curl-http-https-request-v1.png`, `04-curl-http-https-request-v2.png`*
 
@@ -103,12 +103,12 @@ Suricata paketi kurulup dinlediği ağ arayüzü `suricata.yaml` içinde tanıml
 
 **Suricata servis durumu:**
 ```bash
-systemctl status suricata
+sudo systemctl status suricata --no-pager
 ```
 Beklenen çıktı:
 ```
 ● suricata.service - Suricata IDS/IPS daemon
-     Loaded: loaded (/lib/systemd/system/suricata.service; enabled)
+     Loaded: loaded (/usr/lib/systemd/system/suricata.service; enabled; preset: enabled)
      Active: active (running)
 ```
 
@@ -118,7 +118,7 @@ Beklenen çıktı:
 
 **Canlı alarm/uyarı akışı:**
 ```bash
-tail -f /var/log/suricata/fast.log
+sudo tail -f /var/log/suricata/fast.log
 ```
 Çoğunlukla düşük öncelikli (Priority 3) ET INFO uyarıları (STUN/NAT traversal gibi rutin trafik) ve birkaç protokol anomalisi ("Ethertype unknown", "Applayer Detect protocol only one direction") görüldü.
 
@@ -128,7 +128,7 @@ tail -f /var/log/suricata/fast.log
 
 **Detaylı JSON log:**
 ```bash
-tail -50 /var/log/suricata/eve.json | jq .
+sudo tail -50 /var/log/suricata/eve.json | jq .
 ```
 Kali makinesinden (192.168.1.188) hedefe (192.168.1.149) yapılan bağlantıların "flow" tipi olayları JSON formatında detaylı olarak görülüyor.
 
@@ -153,7 +153,7 @@ Zeek paketi kurulduğunda, kurulumun yalnızca ikili dosyaları sağladığı, d
 
 **Zeek systemd unit durumu:**
 ```bash
-systemctl status zeek
+sudo systemctl status zeek --no-pager
 ```
 Beklenen çıktı: `Active: active (running)` — `zeekctl` üzerinden başlatıldığı log'da görülür.
 
@@ -163,7 +163,7 @@ Beklenen çıktı: `Active: active (running)` — `zeekctl` üzerinden başlatı
 
 **Bağlantı kayıtları (conn.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/conn.log
+sudo tail -20 /opt/zeek/logs/current/conn.log
 ```
 Çeşitli TCP/UDP bağlantı kayıtları arasında, Kali makinesinden (192.168.1.188) hedefin SSH portuna (22) yapılan `S0` (yarım kalmış — yanıt alınamamış) bağlantı denemesi de görülüyor; bu, `06` numaralı `nc` testiyle örtüşen bağımsız bir doğrulamadır. Conn.log alanları (süre, byte sayısı, bağlantı durumu harfleri), bir bağlantının tüm yaşam döngüsünü tek satırda özetleyebiliyor.
 
@@ -173,7 +173,7 @@ tail -n 20 /opt/zeek/logs/current/conn.log
 
 **DNS sorguları (dns.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/dns.log
+sudo tail -20 /opt/zeek/logs/current/dns.log
 ```
 Çeşitli dış DNS sorguları (Cloudflare, Microsoft, Mozilla, claude.ai vb.) protokol seviyesinde kaydedilmiş.
 
@@ -183,7 +183,7 @@ tail -n 20 /opt/zeek/logs/current/dns.log
 
 **HTTP istekleri (http.log, iki farklı an):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/http.log
+sudo tail -20 /opt/zeek/logs/current/http.log
 ```
 Çoğunlukla Go-http-client kaynaklı "generate_204" (captive portal kontrolü) istekleri ile birlikte Firefox ve UPnP (SUBSCRIBE/UNSUBSCRIBE) trafiği görülüyor. İkinci an görüntüsü, aynı log dosyasının biraz sonraki halini gösteriyor ve zaman içinde yeni satırların eklendiğini doğruluyor.
 
@@ -194,9 +194,9 @@ tail -n 20 /opt/zeek/logs/current/http.log
 
 **TLS/SSL bağlantıları (ssl.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/ssl.log
+sudo tail -20 /opt/zeek/logs/current/ssl.log
 ```
-Çok sayıda dış TLS 1.3 bağlantısı (ChatGPT, Bing, Office 365, Google API vb.) protokol seviyesinde kaydedilmiş.
+Çoğunlukla dış TLS 1.3 bağlantıları (ChatGPT, Bing, Office 365, Google API vb.) protokol seviyesinde kaydedilmiş; aynı log penceresinde en az bir TLSv1.2 bağlantısı da (ALPN `h2` ile bir `TLS_ECD...` cipher üzerinden) görülüyor.
 
 *Kanıt: `17-zeek-ssl-log.png`*
 
@@ -204,7 +204,7 @@ tail -n 20 /opt/zeek/logs/current/ssl.log
 
 **Protokol anomalileri (weird.log):**
 ```bash
-tail -n 20 /opt/zeek/logs/current/weird.log
+sudo tail -20 /opt/zeek/logs/current/weird.log
 ```
 "unknown_HTTP_method" (UPnP SUBSCRIBE/UNSUBSCRIBE), "data_before_established" ve "active_connection_reuse" gibi Zeek'in standart dışı bulduğu davranışlar kaydedilmiş — bunlar saldırı değil, ancak izlenmeye değer protokol sapmaları.
 
@@ -214,8 +214,10 @@ tail -n 20 /opt/zeek/logs/current/weird.log
 
 **Bildirimler (notice.log) — SSL sertifika uyarıları:**
 ```bash
-tail -n 20 /opt/zeek/logs/current/notice.log
+sudo tail -20 /opt/zeek/logs/current/notice.log 2>/dev/null || echo "notice.log henüz oluşmadı"
 ```
+(Komutta terminal görüntüsünde görülen Türkçe bir yedek/fallback mesajı var — `"notice.log henüz oluşmadı"`. Bu, Zeek'in kendisinden değil operatörün shell oturumundan geliyor ve yalnızca log dosyası henüz yoksa yazdırılır; bu çalıştırmada dosya zaten mevcuttu, dolayısıyla aşağıda gösterilen gerçek log içeriği fiilen ekrana basılan çıktıdır.)
+
 Çok sayıda "SSL certificate validation failed... unable to get local issuer certificate" bildirimi görülüyor (ör. Microsoft ve Kaspersky sertifika zincirleriyle ilgili) — bu, istemci tarafındaki (Windows) sertifika deposu/zincir eksikliğinden kaynaklanan, Zeek'in doğru şekilde yakaladığı bir gözlemdir.
 
 *Kanıt: `19-zeek-notice-log-ssl-cert-warnings.png`*
