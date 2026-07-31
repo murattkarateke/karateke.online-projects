@@ -35,6 +35,8 @@ Get-Item "$env:TEMP\suspicious_test_payload.ps1"
 
 ![Test scenario command](screenshots/03-simulated-incident-command.png)
 
+*(Only the final command, `Get-Item`, and its output are visible in the screenshot; the `whoami`/`New-Item` commands that actually created the file fall outside the captured frame.)*
+
 ### 4. Artifact Collection Request
 The target file was searched for via the Velociraptor GUI using the `Windows.Search.FileFinder` artifact. The first attempt with the default `auto` accessor returned 0 results (see Findings, root cause analysis); switching to the `ntfs` accessor resolved the issue:
 
@@ -54,7 +56,7 @@ The collection result was exported in JSON format and verified (`F.D9B961SS72FNU
 
 ### Finding A — Falco alerts are false positives
 
-Falco's "Read sensitive file untrusted" rule was being triggered by the `wazuh-modulesd` process reading `/etc/sudoers` and `/etc/shadow`. Investigation confirmed this to be Wazuh's own legitimate FIM/rootcheck activity, not an actual threat. This represents a configuration improvement opportunity — Wazuh is not yet added to Falco's "trusted process" list — and is the rationale for choosing a controlled test scenario over simulating a real incident.
+Falco's "Read sensitive file untrusted" rule was being triggered by the `wazuh-modulesd` process reading `/etc/sudoers` (every record visible in the screenshot's `tail -10` window is for `/etc/sudoers`; a separate log line for `/etc/shadow` doesn't appear in this capture, though it would be expected to trigger similarly as part of the same FIM scan). Investigation confirmed this to be Wazuh's own legitimate FIM/rootcheck activity, not an actual threat. This represents a configuration improvement opportunity — Wazuh is not yet added to Falco's "trusted process" list — and is the rationale for choosing a controlled test scenario over simulating a real incident.
 
 ![Falco log review](screenshots/07-falco-log-review.png)
 
@@ -78,7 +80,7 @@ The Velociraptor Windows client runs under the `LocalSystem` account. With the d
 |---|---|---|
 | 01 | 01-velociraptor-server-status.png | Server service status (active/running) |
 | 02 | 02-velociraptor-client-connected.png | Client connection status (Connected) |
-| 03 | 03-simulated-incident-command.png | Controlled test file creation command |
+| 03 | 03-simulated-incident-command.png | Controlled test file verification (Get-Item) |
 | 04 | 04-velociraptor-artifact-collection-request.png | Artifact collection request and parameters |
 | 05 | 05-velociraptor-collection-results.png | Collection results (timestamps + hashes) |
 | 06 | 06-velociraptor-report-export.png | JSON report export |

@@ -35,6 +35,8 @@ Get-Item "$env:TEMP\suspicious_test_payload.ps1"
 
 ![Test senaryosu komutu](screenshots/03-simulated-incident-command.png)
 
+*(Ekran görüntüsünde yalnızca son komut olan `Get-Item` ve çıktısı görünüyor; dosyayı oluşturan `whoami`/`New-Item` komutları görüntü dışında kalmıştır.)*
+
 ### 4. Artifact Toplama İsteği
 Velociraptor GUI üzerinden `Windows.Search.FileFinder` artifact'ı ile hedef dosya arandı. İlk denemede varsayılan `auto` accessor ile 0 sonuç alındı (bkz. Bulgular, kök neden analizi); `ntfs` accessor'a geçilerek sorun çözüldü:
 
@@ -54,7 +56,7 @@ Toplama sonucu JSON formatında export edildi ve doğrulandı (`F.D9B961SS72FNU.
 
 ### Bulgu A — Falco uyarıları false-positive
 
-Falco'nun "Read sensitive file untrusted" kuralı, `wazuh-modulesd` sürecinin `/etc/sudoers` ve `/etc/shadow` dosyalarını okumasını tetikliyordu. İnceleme sonucunda bunun Wazuh'un kendi meşru FIM/rootcheck aktivitesi olduğu, gerçek bir tehdit göstermediği doğrulandı. Bu, Falco'nun "trusted process" listesine Wazuh'un eklenmediğini gösteren bir yapılandırma iyileştirme fırsatıdır; gerçek bir olay simülasyonu yerine kontrollü test senaryosu tercih edilmesinin gerekçesidir.
+Falco'nun "Read sensitive file untrusted" kuralı, `wazuh-modulesd` sürecinin `/etc/sudoers` dosyasını okumasıyla tetikleniyordu (ekran görüntüsündeki `tail -10` penceresinde gözlemlenen tüm kayıtlar `/etc/sudoers` için; `/etc/shadow` için ayrı bir log satırı bu görüntüde yer almıyor, ancak aynı FIM taramasının parçası olarak benzer şekilde tetiklenmesi beklenir). İnceleme sonucunda bunun Wazuh'un kendi meşru FIM/rootcheck aktivitesi olduğu, gerçek bir tehdit göstermediği doğrulandı. Bu, Falco'nun "trusted process" listesine Wazuh'un eklenmediğini gösteren bir yapılandırma iyileştirme fırsatıdır; gerçek bir olay simülasyonu yerine kontrollü test senaryosu tercih edilmesinin gerekçesidir.
 
 ![Falco log incelemesi](screenshots/07-falco-log-review.png)
 
@@ -78,7 +80,7 @@ Velociraptor Windows istemcisi `LocalSystem` hesabı altında çalışmaktadır.
 |---|---|---|
 | 01 | 01-velociraptor-server-status.png | Sunucu servis durumu (active/running) |
 | 02 | 02-velociraptor-client-connected.png | İstemci bağlantı durumu (Connected) |
-| 03 | 03-simulated-incident-command.png | Kontrollü test dosyası oluşturma komutu |
+| 03 | 03-simulated-incident-command.png | Kontrollü test dosyasının doğrulanması (Get-Item) |
 | 04 | 04-velociraptor-artifact-collection-request.png | Artifact toplama isteği ve parametreler |
 | 05 | 05-velociraptor-collection-results.png | Toplama sonuçları (zaman damgaları + hash) |
 | 06 | 06-velociraptor-report-export.png | JSON rapor export |
