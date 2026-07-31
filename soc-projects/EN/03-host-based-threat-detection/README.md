@@ -39,14 +39,14 @@ sudo nmap -T5 -p- 192.168.1.149 -oN /root/proj03-aggressive-scan.txt
 
 Attack simulations were run from a separate Kali Linux machine at 192.168.1.188 on the same network.
 
-- An **SSH brute-force attempt via Hydra** failed due to a wordlist formatting error.
-- An **HTTP form brute-force attempt via Hydra** failed with the same wordlist error.
+- An **SSH brute-force attempt via Hydra** failed because the specified wordlist file could not be found (`[ERROR] File for passwords not found: /root/small-wordlist.txt` — wrong file path).
+- An **HTTP form brute-force attempt via Hydra** failed with the same file-not-found error.
 - **10 consecutive manual SSH connection attempts** were made via a `for i in {1..10}` loop; the captured terminal output shows **9** completed `Connection timed out` lines (the loop was configured for 10 iterations, but only 9 completed results appear in the screenshot, most likely because the capture was taken before the 10th line printed). All completed attempts resulted in `Connection timed out`. This is because network segmentation on the target (`192.168.1.149`) restricts SSH access to the admin machine at `192.168.1.151` only — since the Kali machine is `.188`, it was blocked at the network layer. **This is direct evidence of an active network-level defense control.**
 
 *Evidence: `01-hydra-ssh-bruteforce-attempt-fail.png`, `02-hydra-http-bruteforce-attempt-fail.png`, `03-manual-ssh-connection-attempts-timeout.png`*
 
-![Hydra SSH brute-force (wordlist error)](screenshots/01-hydra-ssh-bruteforce-attempt-fail.png)
-![Hydra HTTP brute-force (wordlist error)](screenshots/02-hydra-http-bruteforce-attempt-fail.png)
+![Hydra SSH brute-force (wordlist file not found)](screenshots/01-hydra-ssh-bruteforce-attempt-fail.png)
+![Hydra HTTP brute-force (wordlist file not found)](screenshots/02-hydra-http-bruteforce-attempt-fail.png)
 ![Manual SSH attempts, timeout](screenshots/03-manual-ssh-connection-attempts-timeout.png)
 
 > **Note:** A dedicated screenshot of the Kali machine's IP configuration (e.g. `ip a` output) is not included in this set; the IP address is taken from session context notes. This can be added with a single follow-up screenshot if needed.
@@ -74,7 +74,7 @@ All detection/blocking services were confirmed running:
 ### 4. Real Detection Evidence
 
 **Falco — Sensitive File Access Detection:**
-Falco detected the `wazuh-syscheckd` process reading authentication-related sensitive files such as `/etc/pam.d/passwd`, `chfn`, `sudo`, and `chpasswd`, generating a `"Sensitive file opened for reading... Read sensitive file untrusted"` alert. This behavior maps to **MITRE ATT&CK T1555 (Credential Access)**.
+Falco detected the `wazuh-syscheckd` process reading authentication-related sensitive files such as `/etc/pam.d/passwd`, `chfn`, `sudo`, and `chpasswd`, generating an alert whose JSON output carries `"Sensitive file opened for reading by non-trusted program"` in the `output` field and `"Read sensitive file untrusted"` in the `rule` field (two separate fields, not a single raw quote). This behavior maps to **MITRE ATT&CK T1555 (Credential Access)**.
 
 *Evidence: `08-falco-alert-sensitive-file-read.png`*
 
@@ -198,8 +198,8 @@ This is final proof that the attacker's IP was **genuinely detected and banned**
 
 | # | Filename | Content |
 |---|---|---|
-| 01 | 01-hydra-ssh-bruteforce-attempt-fail.png | Hydra SSH brute-force (wordlist error) |
-| 02 | 02-hydra-http-bruteforce-attempt-fail.png | Hydra HTTP brute-force (wordlist error) |
+| 01 | 01-hydra-ssh-bruteforce-attempt-fail.png | Hydra SSH brute-force (wordlist file not found) |
+| 02 | 02-hydra-http-bruteforce-attempt-fail.png | Hydra HTTP brute-force (wordlist file not found) |
 | 03 | 03-manual-ssh-connection-attempts-timeout.png | Manual SSH attempts, timeout |
 | 04 | 04-falco-service-status-active.png | Falco service status |
 | 05 | 05-auditd-service-status-active.png | Auditd service status |

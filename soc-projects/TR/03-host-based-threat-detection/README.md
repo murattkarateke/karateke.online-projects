@@ -39,14 +39,14 @@ sudo nmap -T5 -p- 192.168.1.149 -oN /root/proj03-aggressive-scan.txt
 
 Saldırı simülasyonları, ağ üzerinde 192.168.1.188 adresine sahip ayrı bir Kali Linux makinesinden yürütülmüştür.
 
-- **Hydra ile SSH brute-force** denemesi yapıldı, ancak wordlist dosyasında biçim hatası nedeniyle araç hata verdi ve tamamlanmadı.
-- **Hydra ile HTTP form brute-force** denemesi de aynı wordlist hatasıyla sonuçlandı.
+- **Hydra ile SSH brute-force** denemesi yapıldı, ancak belirtilen wordlist dosyası bulunamadığı için (`[ERROR] File for passwords not found: /root/small-wordlist.txt` — yanlış dosya yolu) araç hata verdi ve tamamlanmadı.
+- **Hydra ile HTTP form brute-force** denemesi de aynı dosya-bulunamadı hatasıyla sonuçlandı.
 - **Manuel SSH bağlantı denemeleri** `for i in {1..10}` döngüsüyle (10 kez ardışık) çalıştırıldı; ekran görüntüsünde **9** tamamlanmış `Connection timed out` satırı görünüyor (döngü 10 iterasyon için yapılandırılmıştı, ancak ekran görüntüsünde yalnızca 9 tamamlanmış sonuç görünüyor — büyük olasılıkla görüntü 10. satır yazdırılmadan hemen önce alındığı için). Tamamlanan tüm denemeler `Connection timed out` hatasıyla sonuçlandı. Bunun nedeni, hedef sunucudaki (`192.168.1.149`) ağ segmentasyon kuralının SSH erişimini yalnızca yönetici makinesi `192.168.1.151`'e izin vermesidir — Kali makinesi `.188` olduğu için bu kural tarafından engellenmiştir. **Bu, ağ seviyesinde çalışan bir savunma katmanının doğrudan kanıtıdır.**
 
 *Kanıtlar: `01-hydra-ssh-bruteforce-attempt-fail.png`, `02-hydra-http-bruteforce-attempt-fail.png`, `03-manual-ssh-connection-attempts-timeout.png`*
 
-![Hydra SSH brute-force (wordlist hatası)](screenshots/01-hydra-ssh-bruteforce-attempt-fail.png)
-![Hydra HTTP brute-force (wordlist hatası)](screenshots/02-hydra-http-bruteforce-attempt-fail.png)
+![Hydra SSH brute-force (wordlist dosyası bulunamadı)](screenshots/01-hydra-ssh-bruteforce-attempt-fail.png)
+![Hydra HTTP brute-force (wordlist dosyası bulunamadı)](screenshots/02-hydra-http-bruteforce-attempt-fail.png)
 ![Manuel SSH denemeleri, timeout](screenshots/03-manual-ssh-connection-attempts-timeout.png)
 
 > **Not:** Kali makinesinin IP yapılandırmasını gösteren ayrı bir ekran görüntüsü (ör. `ip a` çıktısı) bu sette bulunmamaktadır; IP adresi bağlam notlarından alınmıştır. Gerekirse tek bir ek görüntüyle tamamlanabilir.
@@ -74,7 +74,7 @@ Tüm tespit/engelleme servislerinin çalışır durumda olduğu doğrulandı:
 ### 4. Gerçek Tespit Kanıtları
 
 **Falco — Hassas Dosya Erişimi Tespiti:**
-Falco, `wazuh-syscheckd` sürecinin `/etc/pam.d/passwd`, `chfn`, `sudo`, `chpasswd` gibi kimlik doğrulama ile ilgili hassas dosyaları okuduğunu tespit etti ve `"Sensitive file opened for reading... Read sensitive file untrusted"` uyarısını üretti. Bu davranış **MITRE ATT&CK T1555 (Credential Access)** tekniğiyle eşleşir.
+Falco, `wazuh-syscheckd` sürecinin `/etc/pam.d/passwd`, `chfn`, `sudo`, `chpasswd` gibi kimlik doğrulama ile ilgili hassas dosyaları okuduğunu tespit etti ve JSON çıktısında `output` alanında `"Sensitive file opened for reading by non-trusted program"`, `rule` alanında ise `"Read sensitive file untrusted"` değerini üreten bir uyarı oluşturdu (iki ayrı alan; tek bir ham metin alıntısı değildir). Bu davranış **MITRE ATT&CK T1555 (Credential Access)** tekniğiyle eşleşir.
 
 *Kanıt: `08-falco-alert-sensitive-file-read.png`*
 
@@ -198,8 +198,8 @@ Bu, saldırgan IP'sinin **gerçekten tespit edilip banlandığının** nihai kan
 
 | # | Dosya Adı | İçerik |
 |---|---|---|
-| 01 | 01-hydra-ssh-bruteforce-attempt-fail.png | Hydra SSH brute-force (wordlist hatası) |
-| 02 | 02-hydra-http-bruteforce-attempt-fail.png | Hydra HTTP brute-force (wordlist hatası) |
+| 01 | 01-hydra-ssh-bruteforce-attempt-fail.png | Hydra SSH brute-force (wordlist dosyası bulunamadı) |
+| 02 | 02-hydra-http-bruteforce-attempt-fail.png | Hydra HTTP brute-force (wordlist dosyası bulunamadı) |
 | 03 | 03-manual-ssh-connection-attempts-timeout.png | Manuel SSH denemeleri, timeout |
 | 04 | 04-falco-service-status-active.png | Falco servis durumu |
 | 05 | 05-auditd-service-status-active.png | Auditd servis durumu |
