@@ -36,7 +36,7 @@ The workflow does not run on a webhook but on a **scheduled** (`Schedule Trigger
 
 ### 4. WAZUH Branch — Raw _search Query
 
-The `HTTP Request` node in the WAZUH branch sends a raw `_search` query directly to the Wazuh Indexer (OpenSearch, `192.168.1.149:9200`): `POST /wazuh-alerts-*/_search`, `size: 50`, sorted descending by `@timestamp`, and filtered by `rule.groups` to select only the categories that matter (`ids`, `suricata`, `attack`, `web`, `sqlinjection`, `rootkit`, `authentication_failed`).
+The `HTTP Request` node in the WAZUH branch sends a raw `_search` query directly to the Wazuh Indexer (OpenSearch, `192.168.1.149:9200`): `POST /wazuh-alerts-*/_search`, `size: 50`, sorted descending by `@timestamp`, and filtered by `rule.groups` to select only the categories that matter (`ids`, `suricata`, `attack`, `web`, `sqlinjection`, `rootkit`, `authentication_failed`). The node's "Options" section has `Ignore SSL Issues (Insecure)` enabled — meaning TLS certificate validation is deliberately skipped for this internal HTTPS connection (likely because the Wazuh Indexer serves a self-signed certificate on the internal LAN); acceptable inside a fully isolated LAN, but a security trade-off worth noting.
 
 ![Raw _search query to Wazuh Indexer](screenshots/04-wazuh-http-request-config.png)
 
@@ -54,7 +54,7 @@ The processed data is written to Cloudflare KV via `PUT https://api.cloudflare.c
 
 ### 7. SPLUNK Branch — SPL Query (REST API)
 
-The `HTTP Request` node in the SPLUNK branch sends a search job to the Splunk REST API (`192.168.1.151:8089`, Basic Auth): `POST /services/search/jobs/export`, with a body containing an SPL query of the form `search index=main earliest=-15m | rex field=_raw ...` — summarizing the last 15 minutes of data by category (Info/Warning/Critical/Other).
+The `HTTP Request` node in the SPLUNK branch sends a search job to the Splunk REST API (`192.168.1.151:8089`, Basic Auth): `POST /services/search/jobs/export`, with a body containing an SPL query of the form `search index=main earliest=-15m | rex field=_raw ...` — summarizing the last 15 minutes of data by category (Info/Warning/Critical/Other). As with the Wazuh branch's node, `Ignore SSL Issues (Insecure)` is also enabled here — certificate validation is likewise skipped for this internal HTTPS connection to the Splunk REST API.
 
 ![Splunk SPL query (REST API)](screenshots/07-splunk-http-request-config.png)
 

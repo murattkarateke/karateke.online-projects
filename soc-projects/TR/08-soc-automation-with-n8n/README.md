@@ -36,7 +36,7 @@ Workflow bir webhook ile değil, **zamanlanmış** (`Schedule Trigger`) bir teti
 
 ### 4. WAZUH Dalı — Ham _search Sorgusu
 
-WAZUH dalındaki `HTTP Request` node'u, Wazuh Indexer'a (OpenSearch, `192.168.1.149:9200`) doğrudan ham bir `_search` sorgusu gönderiyor: `POST /wazuh-alerts-*/_search`, `size: 50`, `@timestamp`'e göre azalan sıralama, ve `rule.groups` filtresiyle yalnızca önem taşıyan kategoriler (`ids`, `suricata`, `attack`, `web`, `sqlinjection`, `rootkit`, `authentication_failed`) seçiliyor.
+WAZUH dalındaki `HTTP Request` node'u, Wazuh Indexer'a (OpenSearch, `192.168.1.149:9200`) doğrudan ham bir `_search` sorgusu gönderiyor: `POST /wazuh-alerts-*/_search`, `size: 50`, `@timestamp`'e göre azalan sıralama, ve `rule.groups` filtresiyle yalnızca önem taşıyan kategoriler (`ids`, `suricata`, `attack`, `web`, `sqlinjection`, `rootkit`, `authentication_failed`) seçiliyor. Node'un "Options" bölümünde `Ignore SSL Issues (Insecure)` seçeneği açık — yani bu iç ağdaki HTTPS bağlantısında TLS sertifika doğrulaması bilinçli olarak atlanıyor (Wazuh Indexer'ın iç ağda kendinden imzalı bir sertifika kullanmasından kaynaklanıyor olması muhtemel); bu, tamamen izole bir LAN içinde kabul edilebilir olsa da not edilmesi gereken bir güvenlik ödünleşimi.
 
 ![Wazuh Indexer'a ham _search sorgusu](screenshots/04-wazuh-http-request-config.png)
 
@@ -54,7 +54,7 @@ WAZUH dalındaki `Code in JavaScript` node'u, gelen alarmları `src_ip` bazında
 
 ### 7. SPLUNK Dalı — SPL Sorgusu (REST API)
 
-SPLUNK dalındaki `HTTP Request` node'u, Splunk REST API'sine (`192.168.1.151:8089`, Basic Auth) bir arama işi gönderiyor: `POST /services/search/jobs/export`, body'de `search index=main earliest=-15m | rex field=_raw ...` şeklinde bir SPL sorgusu — son 15 dakikanın verisi kategori bazlı (Info/Warning/Critical/Other) özetleniyor.
+SPLUNK dalındaki `HTTP Request` node'u, Splunk REST API'sine (`192.168.1.151:8089`, Basic Auth) bir arama işi gönderiyor: `POST /services/search/jobs/export`, body'de `search index=main earliest=-15m | rex field=_raw ...` şeklinde bir SPL sorgusu — son 15 dakikanın verisi kategori bazlı (Info/Warning/Critical/Other) özetleniyor. Wazuh dalındaki node'da olduğu gibi burada da `Ignore SSL Issues (Insecure)` seçeneği açık — Splunk REST API'sine yapılan bu iç ağ HTTPS bağlantısında da sertifika doğrulaması atlanıyor.
 
 ![Splunk SPL sorgusu (REST API)](screenshots/07-splunk-http-request-config.png)
 
