@@ -53,7 +53,7 @@ Password-based SSH authentication is deliberately **disabled** on the server (ke
 
 ### 3. Wazuh Detection and MITRE Mapping
 
-Reviewed the Document Details view of one of the selected alerts: `rule.mitre.id: T1222`, `rule.mitre.tactic: Defense Evasion`, `rule.mitre.technique: File and Directory Permissions Modification`, `rule.description: "Auditd - Permission modified"`, `rule.id: 100105`, `rule.level: 8`, `data.audit.key: perm_mod`. The source process (`data.audit.exe`) is **`/usr/bin/clamscan`** — i.e., Project 06's ClamAV component.
+A separate example event was reviewed to demonstrate MITRE ATT&CK mapping — this is a different record from the `rule.level >= 12` selection in Step 2 (rule.id 92213); here the filter was `rule.mitre.id: exists`, and the Document Details view was opened for an event with a populated MITRE field: `rule.mitre.id: T1222`, `rule.mitre.tactic: Defense Evasion`, `rule.mitre.technique: File and Directory Permissions Modification`, `rule.description: "Auditd - Permission modified"`, `rule.id: 100105`, `rule.level: 8`, `data.audit.key: perm_mod`. The source process (`data.audit.exe`) is **`/usr/bin/clamscan`** — i.e., Project 06's ClamAV component.
 
 *Evidence: `05-wazuh-alert-detail-mitre-attck.png`*
 

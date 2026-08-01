@@ -53,7 +53,7 @@ Sunucuda SSH parola tabanlı kimlik doğrulaması kasıtlı olarak **kapalıdır
 
 ### 3. Wazuh Tespiti ve MITRE Eşleştirmesi
 
-Seçilen alarmlardan birinin Document Details görünümü incelendi: `rule.mitre.id: T1222`, `rule.mitre.tactic: Defense Evasion`, `rule.mitre.technique: File and Directory Permissions Modification`, `rule.description: "Auditd - Permission modified"`, `rule.id: 100105`, `rule.level: 8`, `data.audit.key: perm_mod`. Kaynak süreç (`data.audit.exe`) **`/usr/bin/clamscan`** — yani Proje 06'nın ClamAV bileşeni.
+MITRE ATT&CK eşleştirmesini göstermek için ayrı bir örnek olay incelendi — bu, Bölüm 2'deki `rule.level >= 12` seçiminden (rule.id 92213) farklı bir kayıttır; burada filtre `rule.mitre.id: exists` olup MITRE alanı dolu olan olaylar arasından bir örneğin Document Details görünümü açıldı: `rule.mitre.id: T1222`, `rule.mitre.tactic: Defense Evasion`, `rule.mitre.technique: File and Directory Permissions Modification`, `rule.description: "Auditd - Permission modified"`, `rule.id: 100105`, `rule.level: 8`, `data.audit.key: perm_mod`. Kaynak süreç (`data.audit.exe`) **`/usr/bin/clamscan`** — yani Proje 06'nın ClamAV bileşeni.
 
 *Kanıt: `05-wazuh-alert-detail-mitre-attck.png`*
 
@@ -99,7 +99,7 @@ Splunk'ta `| eventcount summarize=false index=*` sorgusu çalıştırıldığın
 
 ### Bulgu B — Tamamlayıcı (Ama Bağımsız) Görünürlük
 
-Bulgu A'ya rağmen, Splunk'ın kendi bağımsız Sysmon/Windows telemetrisi dolaylı ama gerçek bir doğrulama sağladı: `ParentImage`/`ParentCommandLine` alanlarında `wazuh-agent.exe`'nin açıkça görünmesi, Wazuh agent'ının endpoint üzerinde gerçekten çalıştığını Splunk'ın kendi, bağımsız açısından doğruluyor. Yani şu an **tam korelasyon yok, ama tamamlayıcı görünürlük var** — iki platform aynı veriyi paylaşmıyor ama birbirinin varlığını dolaylı olarak teyit edebiliyor.
+Bulgu A'ya rağmen, Splunk'ın kendi bağımsız Sysmon/Windows telemetrisi dolaylı ama gerçek bir doğrulama sağladı: `ParentImage`/`ParentCommandLine` alanlarında `wazuh-agent.exe`'nin açıkça görünmesi, Wazuh agent'ının endpoint üzerinde gerçekten çalıştığını Splunk'ın kendi bağımsız bakış açısından doğruluyor. Yani şu an **tam korelasyon yok, ama tamamlayıcı görünürlük var** — iki platform aynı veriyi paylaşmıyor ama birbirinin varlığını dolaylı olarak teyit edebiliyor.
 
 ## Öne Çıkan Yetkinlikler
 
