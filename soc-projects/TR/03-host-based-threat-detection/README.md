@@ -131,6 +131,9 @@ Fail2Ban jail'leri `backend=systemd` kullanacak şekilde yapılandırılmıştı
 ![jail.local düzeltilmiş yapılandırma](screenshots/13-fail2ban-jail-local-config-fixed.png)
 
 ### Kök Neden B — Nginx SPA Fallback'i Gerçek 404 Üretmiyordu
+
+*Not: Kök Neden B ve C'nin kanıtları, tüm düzeltmeler tamamlandıktan sonra yapılan tek bir doğrulama turunda toplanmıştır — bu yüzden B'nin kanıt görüntüsü de C'nin düzeltmesinin etkisini (gerçek istemci IP'si) yansıtabilir.*
+
 Uygulama bir React SPA olduğu için nginx, bilinmeyen tüm path'leri `index.html`'e yönlendiriyor ve HTTP 200 döndürüyordu — şüpheli path taramaları (`/pma/`, `/wp-admin/` vb.) dahil. Bu durumda Fail2Ban'ın 404 tabanlı filtreleri hiçbir zaman tetiklenmiyordu.
 
 **Çözüm:** Şüpheli/bilinmeyen path'ler için özel bir nginx `location` bloğu eklendi ve bu path'lerin gerçekten `return 404` döndürmesi sağlandı.

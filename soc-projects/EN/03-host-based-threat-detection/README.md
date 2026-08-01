@@ -131,6 +131,9 @@ Fail2Ban jails were configured with `backend=systemd`, but nginx was writing log
 ![jail.local corrected configuration](screenshots/13-fail2ban-jail-local-config-fixed.png)
 
 ### Root Cause B — Nginx SPA Fallback Never Produced Real 404s
+
+*Note: The evidence for Root Cause B and C was collected in a single verification pass after all fixes were already in place — so B's evidence screenshot may also reflect the effect of C's fix (the real client IP).*
+
 Since the application is a React SPA, nginx redirected all unknown paths to `index.html` and returned HTTP 200 — including for suspicious probe paths (`/pma/`, `/wp-admin/`, etc.). As a result, Fail2Ban's 404-based filters never triggered.
 
 **Fix:** A dedicated nginx `location` block was added for suspicious/unknown paths, ensuring they actually return `404`.
