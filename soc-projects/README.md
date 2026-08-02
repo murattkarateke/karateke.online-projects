@@ -1,8 +1,8 @@
 # SOC Güvenlik Proje Portföyü / SOC Security Project Portfolio
 
-Bu depo, Murat Karateke'nin SOC Analyst hedefiyle yürüttüğü, uçtan uca bir SOC (Security Operations Center) ortamı kurulumunu belgeleyen 9 projeden oluşur — çevre güvenliğinden (perimeter security) ağ/host tespitine, SIEM korelasyonuna, DFIR'a, otomasyona ve saldırgan perspektifli değerlendirmeye (zafiyet taraması) kadar. Her proje gerçek komutlar, gerçek servis/log çıktıları ve ekran görüntüsü kanıtlarıyla belgelenmiştir.
+Bu depo, Murat Karateke'nin SOC Analyst hedefiyle yürüttüğü, uçtan uca bir SOC (Security Operations Center) ortamı kurulumunu belgeleyen 11 projeden oluşur — çevre güvenliğinden (perimeter security) ağ/host tespitine, SIEM korelasyonuna, DFIR'a, otomasyona, saldırgan perspektifli değerlendirmeye (zafiyet taraması) ve kimlik/ağ mimarisine kadar. 10 proje tamamlanmış, 1 proje (Proje 11) yakında yayınlanacak. Her proje gerçek komutlar, gerçek servis/log çıktıları ve ekran görüntüsü kanıtlarıyla belgelenmiştir.
 
-This repository is Murat Karateke's SOC Analyst portfolio, consisting of 9 projects documenting an end-to-end SOC (Security Operations Center) build — from perimeter security to network/host detection, SIEM correlation, DFIR, automation, and an attacker-perspective assessment (vulnerability assessment). Each project is documented with real commands, real service/log output, and screenshot evidence.
+This repository is Murat Karateke's SOC Analyst portfolio, consisting of 11 projects documenting an end-to-end SOC (Security Operations Center) build — from perimeter security to network/host detection, SIEM correlation, DFIR, automation, an attacker-perspective assessment (vulnerability assessment), and identity/network architecture. 10 projects are complete, with 1 project (Project 11) coming soon. Each project is documented with real commands, real service/log output, and screenshot evidence.
 
 ---
 
@@ -14,7 +14,7 @@ This repository is Murat Karateke's SOC Analyst portfolio, consisting of 9 proje
 | 🕒 | README hazır, ekran görüntüleri bekleniyor | README ready, screenshots pending |
 | 🔜 | Yakında | Coming soon |
 
-**Tam/hazır (✅): Proje 01-09** · **Yakında (🔜): Proje 10-11**
+**Tam/hazır (✅): Proje 01-10** · **Yakında (🔜): Proje 11**
 
 ---
 
@@ -31,7 +31,7 @@ This repository is Murat Karateke's SOC Analyst portfolio, consisting of 9 proje
 | 07 | Otomatik Yedekleme ve Kurtarma Sistemi | Bütünlük doğrulamalı (SHA256) ve saklama politikalı (retention) otomatik yedekleme, geri yükleme testi | Bash, cron, tar, sha256sum | ✅ | [TR/07](TR/07-automated-backup-recovery-system/README.md) |
 | 08 | n8n ile SOC Otomasyonu | SIEM verisinden otomatik Cloudflare aksiyonuna uzanan bir SOAR iş akışı | n8n (Docker), Wazuh API, Splunk API, Cloudflare API | ✅ | [TR/08](TR/08-soc-automation-with-n8n/README.md) |
 | 09 | Zafiyet Değerlendirme Laboratuvarı | karateke.online'ın kendisine karşı dış saldırgan perspektifiyle CVE tabanlı zafiyet taraması; 0 kritik/yüksek bulgu, WAF fingerprint tespiti/tarpitting bulguları | Kali Linux, GVM/OpenVAS, Nuclei, Nikto, Nmap | ✅ | [TR/09](TR/09-vulnerability-assessment-lab/README.md) |
-| 10 | Active Directory Güvenlik Değerlendirmesi | İzole bir Windows Server lab ortamında AD DS altyapısı kurulup enum4linux, CrackMapExec, BloodHound ile yaygın yanlış yapılandırmaların tespiti | Windows Server, Kali Linux, enum4linux, CrackMapExec, BloodHound | 🔜 | — |
+| 10 | Active Directory Laboratuvarı ve Ağ Mimarisi | Windows Server 2025 üzerinde Active Directory Domain Services kimlik yönetimi altyapısı ve Cisco Packet Tracer'da Purdue Model mantığına dayalı, VLAN/OSPF/HSRP ile kurumsal ağ mimarisi kuruldu. | Windows Server 2025, Active Directory DS, Cisco Packet Tracer | ✅ | [TR/10](TR/10-active-directory-lab/README.md) |
 | 11 | Web Uygulaması Sızma Testi | İzole, kasıtlı-zafiyetli bir hedef (DVWA) üzerinde Burp Suite ile OWASP Top 10 kapsamındaki zafiyet sınıflarının sistematik testi | Burp Suite, DVWA | 🔜 | — |
 
 ## English (EN)
@@ -47,7 +47,7 @@ This repository is Murat Karateke's SOC Analyst portfolio, consisting of 9 proje
 | 07 | Automated Backup & Recovery System | Integrity-verified (SHA256) automated backups with a retention policy and restore testing | Bash, cron, tar, sha256sum | ✅ | [EN/07](EN/07-automated-backup-recovery-system/README.md) |
 | 08 | SOC Automation with n8n | A SOAR workflow taking SIEM data all the way to an automated Cloudflare action | n8n (Docker), Wazuh API, Splunk API, Cloudflare API | ✅ | [EN/08](EN/08-soc-automation-with-n8n/README.md) |
 | 09 | Vulnerability Assessment Lab | CVE-based vulnerability scan against karateke.online itself from an external attacker's perspective; 0 critical/high findings, WAF fingerprinting/tarpitting findings | Kali Linux, GVM/OpenVAS, Nuclei, Nikto, Nmap | ✅ | [EN/09](EN/09-vulnerability-assessment-lab/README.md) |
-| 10 | Active Directory Security Assessment | Building AD DS infrastructure in an isolated Windows Server lab and detecting common misconfigurations with enum4linux, CrackMapExec, and BloodHound | Windows Server, Kali Linux, enum4linux, CrackMapExec, BloodHound | 🔜 | — |
+| 10 | Active Directory Lab and Network Architecture | Built an Active Directory Domain Services identity management infrastructure on Windows Server 2025, alongside a Purdue-Model-based corporate network architecture with VLAN/OSPF/HSRP in Cisco Packet Tracer. | Windows Server 2025, Active Directory DS, Cisco Packet Tracer | ✅ | [EN/10](EN/10-active-directory-lab/README.md) |
 | 11 | Web Application Penetration Testing | Systematic testing of OWASP Top 10 vulnerability classes with Burp Suite against an isolated, intentionally-vulnerable target (DVWA) | Burp Suite, DVWA | 🔜 | — |
 
 ---
