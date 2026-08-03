@@ -123,14 +123,15 @@ This project set out to demonstrate not a single technology, but a system of sys
 
 ## Key Competencies Demonstrated
 
-- Bulk-creating users/groups via PowerShell and managing Active Directory in a scriptable way
-- Designing an OU hierarchy around Tiered Administration logic (Tier 0 Admin and Service Accounts separation)
-- Enforcing a domain-wide password policy and GPO-based device restriction (USB Deny Write)
+- Designing an IP-efficient, scalable subnet plan using VLSM (Variable Length Subnet Masking)
+- Segmenting departments logically through VLAN design
+- Configuring dynamic routing with OSPF and gateway redundancy with HSRP
+- Designing OT/Corporate network separation following Purdue Model logic (ACL-based isolation)
+- Planning an OU hierarchy around Tiered Administration logic
 - Aligning the logical directory structure with the physical network topology via AD Sites and Services
-- Designing and implementing OT/Corporate network separation following Purdue Model logic
-- Setting up dynamic routing with OSPF, department segmentation with VLANs, and gateway redundancy with HSRP
+- Designing a domain-wide password policy and GPO-based device restriction (USB Deny Write)
 - Verifying end-to-end connectivity (ping test) to prove the design doesn't stay on paper
-- Honestly stating the boundaries of the relationship between the two layers (AD and network architecture)
+- Honestly stating the boundaries of the relationship between the two layers
 
 ## Screenshot Inventory
 

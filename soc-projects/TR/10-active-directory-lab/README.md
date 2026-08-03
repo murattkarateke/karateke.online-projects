@@ -123,14 +123,15 @@ Bu proje, tek bir teknolojiyi değil, bir sistemler bütününü göstermeyi hed
 
 ## Öne Çıkan Yetkinlikler
 
-- PowerShell ile toplu kullanıcı/grup oluşturma ve Active Directory'yi script'lenebilir şekilde yönetme
-- Tiered Administration mantığıyla OU hiyerarşisi tasarlama (Tier 0 Admin ve Service Accounts ayrımı)
-- Domain genelinde parola politikası ve GPO tabanlı cihaz kısıtlaması (USB Deny Write) uygulama
+- VLSM (Variable Length Subnet Masking) ile IP tasarruflu, ölçeklenebilir bir subnet planı tasarlama
+- VLAN segmentasyonu ile departmanları mantıksal olarak ayırma
+- OSPF ile dinamik yönlendirme, HSRP ile gateway yedekliliği kurgulama
+- Purdue Model mantığıyla OT/Kurumsal ağ ayrımı tasarlama (ACL tabanlı izolasyon)
+- Active Directory OU hiyerarşisini Tiered Administration mantığıyla planlama
 - AD Sites and Services ile mantıksal dizin yapısını fiziksel ağ topolojisiyle hizalama
-- Purdue Model mantığıyla OT/Kurumsal ağ ayrımı tasarlayıp uygulama
-- OSPF ile dinamik yönlendirme, VLAN ile departman segmentasyonu, HSRP ile gateway yedekliliği kurma
+- Domain genelinde parola politikası ve GPO tabanlı cihaz kısıtlaması (USB Deny Write) tasarlama
 - Uçtan uca bağlantıyı (ping testi) doğrulayarak tasarımın kağıt üzerinde kalmadığını kanıtlama
-- İki farklı katman (AD ve ağ mimarisi) arasındaki ilişkinin sınırlarını dürüstçe belirtme
+- İki farklı katman arasındaki ilişkinin sınırlarını dürüstçe belirtme
 
 ## Ekran Görüntüsü Envanteri
 
